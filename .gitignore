@@ -1,3 +1,5 @@
 doorKey.py
 **.pyc
 venv/
+_cache/
+data.h5

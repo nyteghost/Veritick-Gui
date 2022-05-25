@@ -18,11 +18,13 @@ from doorKey import config
 ### SQL Connection Settings
 connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(config['database']['Server'])+';''Database=isolatedsafety;''UID='+(config['database']['UID'])+';''PWD='+(config['database']['PWD'])+';' 
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
-conn = sa.create_engine(connection_url)
-rawconn = conn.raw_connection()
+engine = sa.create_engine(connection_url)
+conn = engine.connect().execution_options(stream_results=True)
+
 
 # Create Cursor
-raw_conn = rawconn.cursor()
+# rawconn = conn.raw_connection()
+# raw_conn = rawconn.cursor()
 
 ### Connectwise Settings
 AUTH=config['cwAUTH']

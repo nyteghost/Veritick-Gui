@@ -1,6 +1,9 @@
-from ticket_search import *
 from pandasgui import show
 import pandas as pd
+from conn_create import *
+
+
+conn = open_connection()
 
 
 def sqlCall(self,queryName,query,variableName):
@@ -9,6 +12,22 @@ def sqlCall(self,queryName,query,variableName):
     self.variableName = variableName
 
 
+
+### Asset Search
+def assetSearch(assetNumber):
+    assetUPSSearch_query = fr"EXEC uspUPSDataByAssetNum {assetNumber}" # Checks Unreturned Equipment in SQL by STID
+    # assetUPSSearch = pd.read_sql(assetUPSSearch_query , conn) 
+    assetUPSSearch = execute_query(assetUPSSearch_query, parameters=None, conn=None) 
+    show(assetUPSSearch)
+
+### Asset Search
+def assetSearch_newWindow(assetNumber):
+    assetUPSSearch_query = fr"EXEC uspUPSDataByAssetNum {assetNumber}" # Checks Unreturned Equipment in SQL by STID
+    # assetUPSSearch = pd.read_sql(assetUPSSearch_query , conn) 
+    assetUPSSearch = execute_query(assetUPSSearch_query, parameters=None, conn=None) 
+    return assetUPSSearch
+
+### Family Search    
 class familySearch:
     def __init__(self, entered_ID):
         self.entered_ID = entered_ID
@@ -16,14 +35,14 @@ class familySearch:
         self.currentAssignValue = None
     
     def familyLookup(self):
-        famLookup_Query = fr"EXEC uspFamilyLookUp {self.entered_ID}"
-        famLookup = pd.read_sql(famLookup_Query , conn)
+        famLookup_query = fr"EXEC uspFamilyLookUp {self.entered_ID}"
+        famLookup = pd.read_sql(famLookup_query , conn)
         self.familyLookupValue = famLookup
         return self.familyLookupValue
         
     def currentAssign(self):
-        currentAssign_Query = fr"EXEC uspFamCurrentAssignByOrgID {self.entered_ID}"
-        currentAssign = pd.read_sql(currentAssign_Query , conn)
+        currentAssign_query = fr"EXEC uspFamCurrentAssignByOrgID {self.entered_ID}"
+        currentAssign = pd.read_sql(currentAssign_query , conn)
         self.currentAssignValue = currentAssign
     
     def upsData(self):
@@ -31,21 +50,30 @@ class familySearch:
         upsData = pd.read_sql(upsData_query , conn)
     
     def unreturned(self):
-        unreturned_Query = fr"EXEC uspSearchUPSRecordbySTID {self.entered_ID}" # Checks Unreturned Equipment in SQL by STID
-        unreturned = pd.read_sql(unreturned_Query , conn)    
+        unreturned_query = fr"EXEC uspSearchUPSRecordbySTID {self.entered_ID}" # Checks Unreturned Equipment in SQL by STID
+        unreturned = pd.read_sql(unreturned_query , conn)   
+    
+ 
         
     def returnAll(self):
-        famLookup_Query = fr"EXEC uspFamilyLookUp {self.entered_ID}"
-        famLookup = pd.read_sql(famLookup_Query , conn)
-        currentAssign_Query = fr"uspFamCurrentAssignByOrgID {self.entered_ID}"
-        currentAssign = pd.read_sql(currentAssign_Query , conn)
-        unreturned_Query = fr"EXEC [uspFamUnreturnedDevCheck] {self.entered_ID}"# Checks Unreturned Equipment in SQL by STID
-        unreturned = pd.read_sql(unreturned_Query , conn)   
+        famLookup_query = fr"EXEC uspFamilyLookUp {self.entered_ID}"
+        currentAssign_query = fr"uspFamCurrentAssignByOrgID {self.entered_ID}"
+        unreturned_query = fr"EXEC [uspFamUnreturnedDevCheck] {self.entered_ID}"# Checks Unreturned Equipment in SQL by STID
         upsData_query = fr"EXEC uspSearchUPSRecordbySTID {self.entered_ID}"  # Checks Unreturned Equipment in SQL by STID
-        upsData = pd.read_sql(upsData_query , conn)
         gopherData_query = fr"EXEC uspGophDataForAssignCBByFam {self.entered_ID}"
-        gopherData = pd.read_sql(gopherData_query,conn)
+    
+        # famLookup = pd.read_sql(famLookup_query , conn)
+        # currentAssign = pd.read_sql(currentAssign_query , conn)
+        # unreturned = pd.read_sql(unreturned_query , conn)  
+        # upsData = pd.read_sql(upsData_query , conn)
+        # gopherData = pd.read_sql(gopherData_query,conn)
         
+        ### Cached ###
+        famLookup = execute_query(famLookup_query, parameters=None, conn=None)
+        currentAssign = execute_query(currentAssign_query, parameters=None, conn=None)
+        unreturned = execute_query(unreturned_query, parameters=None, conn=None)
+        upsData = execute_query(upsData_query, parameters=None, conn=None)
+        gopherData = execute_query(gopherData_query, parameters=None, conn=None)
         
         dataset = {
             'Family Information':famLookup,
