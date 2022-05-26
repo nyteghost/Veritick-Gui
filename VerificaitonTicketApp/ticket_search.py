@@ -13,7 +13,7 @@ import re,os,sys
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
-from doorKey import config
+from VeritickAPP.doorKey import config
 
 ### SQL Connection Settings
 connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(config['database']['Server'])+';''Database=isolatedsafety;''UID='+(config['database']['UID'])+';''PWD='+(config['database']['PWD'])+';' 

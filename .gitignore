@@ -1,7 +1,4 @@
-doorKey.py
-**.pyc
-venv/
+__pycache__/
 _cache/
-data.h5
-test.py
-backup_mail.py
+VeritickAPP/doorKey.py
+debugger.log

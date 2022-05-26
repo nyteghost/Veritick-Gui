@@ -1,20 +1,8 @@
 import wx
 import wx.grid
-from sql_search import *
-from cw_search import ticket_search
-
-
-
+from veritick import main_run
 import better_exceptions; better_exceptions.hook()
-
-class RedirectText(object):
-    def __init__(self,aWxTextCtrl):
-        self.out = aWxTextCtrl
-
-    def write(self,string):
-        self.out.WriteText(string)
-        
-        
+import sys
 
 class TicketWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -57,12 +45,14 @@ class cw_window(wx.Panel):
         # self.ticketInfo.InsertColumn(1, 'Summary')
         # self.ticketInfo.InsertColumn(2, 'Status')
         # sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
-        self.ticketInfo = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)        
-        self.noteWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.veritick = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)        
+        redir = RedirectText(self.veritick)
+        sys.stdout = redir
+        # self.noteWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.EXPAND)
         # redir = RedirectText(self.noteWindow)
         # sys.stdout = redir
-        sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
-        sizer.Add(self.noteWindow, 0, wx.ALL | wx.EXPAND, 5) 
+        sizer.Add(self.veritick,0, wx.ALL | wx.EXPAND, 5)
+        # sizer.Add(self.noteWindow, 0, wx.ALL | wx.EXPAND, 5) 
     
         # wx.CallLater(10,)
         self.SetBackgroundColour(wx.Colour(100,100,100))
@@ -73,72 +63,35 @@ class cw_window(wx.Panel):
         # sizer.Add(asset_my_btn, 0, wx.ALL | wx.CENTER, 5) 
         
         ###################### CW Manage Ticket Information #######################
-        self.cw_manage_text_ctrl = wx.TextCtrl(self)
-        sizer.Add(self.cw_manage_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
-        cw_ticket_info_btn = wx.Button(self, label='Search Information')
-        cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketInfo)
-        cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
-        sizer.Add(cw_ticket_info_btn, 0, wx.ALL | wx.CENTER, 5)
+        self.veritick_text_ctrl = wx.TextCtrl(self)
+        sizer.Add(self.veritick_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
+        veritick_btn = wx.Button(self, label='Search Information')
+        veritick_btn.Bind(wx.EVT_BUTTON, self.veritick_on_press)
+        sizer.Add(veritick_btn, 0, wx.ALL | wx.CENTER, 5)
         ##########################################################################
-       
-        # ####################### CW Manage Notes ##################################
-        # # self.cw_manage_text_ctrl = wx.TextCtrl(panel1)
-        # # sizer.Add(self.cw_manage_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
-        # cw_notes_btn = wx.Button(self, label='Ticket Notes')
-        # cw_notes_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
-        # sizer.Add(cw_notes_btn, 0, wx.ALL | wx.CENTER, 5)
-        # ##########################################################################
-        
+        # self.yourtextctrl = wx.TextCtrl(self)
+        # sizer.Add(self.yourtextctrl, 0, wx.ALL | wx.EXPAND, 5)
+        # yes_btn = wx.Button(self, label='Yes')
+        # yes_btn.Bind(wx.EVT_BUTTON, self.OnTextEnter)
+        # sizer.Add(yes_btn, 0, wx.ALL | wx.CENTER, 5)
+
+
         
         
         self.SetSizer(sizer)
         self.Show()
     
+    def veritick_on_press(self, event):
+        value = self.veritick_text_ctrl.GetValue().strip()
+        if not value:
+            print("You didn't enter anything!")
+        else:
+            main_run(value)
+            
 
-    def getTicketInfo(self,text):
-        value = self.cw_manage_text_ctrl.GetValue().strip()
-        if not value:
-            print("You did not enter anything!")
-        else:
-            ts = ticket_search(value)
-            gt = ts.getTicketInfo()
-            # index = 0
-            # self.ticketInfo.InsertItem(index, gt.id)
-            self.ticketInfo.write(str(gt.id)+'\n')
-            self.ticketInfo.write(gt.summary+"\n")
-            self.ticketInfo.write(gt.status['name'])
-            text.Skip()
-     
-     
-    def getTimeEntries(self,text):
-        value = self.cw_manage_text_ctrl.GetValue().strip()
-        if not value:
-            print("You did not enter anything!")
-        else:
-            ts = ticket_search(value)
-            ts.getTimeEntry()
-            for timeEntry in ts.getTimeEntry():
-                yield timeEntry
+
+    #here you have your input and you can store it o call a function with it
     
-    def getTicketNotes(self,text):
-        value = self.cw_manage_text_ctrl.GetValue().strip()
-        if not value:
-            print("You did not enter anything!")
-        else:
-            ts = ticket_search(value)
-            tn = ts.getTicketNotes()
-            print(len(tn))
-            for i in tn:
-                ticket_text = i.text
-                
-                
-                self.noteWindow.write(ticket_text)
-                self.noteWindow.write('\n')
-            text.Skip()
-        
-      
-
-     
     # def buttonloop(self,event):
     #     os.chdir('d:/KKSC')
     #     dic = getDic()
@@ -161,7 +114,12 @@ class cw_window(wx.Panel):
     #         yield item
 
 
+class RedirectText(object):
+    def __init__(self,aWxTextCtrl):
+        self.out = aWxTextCtrl
 
+    def write(self,string):
+        self.out.WriteText(string)
 
 if __name__ == '__main__':  
     app = wx.App(False)

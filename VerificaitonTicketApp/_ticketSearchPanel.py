@@ -3,16 +3,9 @@ import wx.grid
 from sql_search import *
 from cw_search import ticket_search
 
+
+
 import better_exceptions; better_exceptions.hook()
-
-class RedirectText(object):
-    def __init__(self,aWxTextCtrl):
-        self.out = aWxTextCtrl
-
-    def write(self,string):
-        self.out.WriteText(string)
-        
-        
 
 class TicketWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -56,7 +49,7 @@ class cw_window(wx.Panel):
         # self.ticketInfo.InsertColumn(2, 'Status')
         # sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
         self.ticketInfo = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)        
-        self.noteWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)
+        self.noteWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.EXPAND)
         # redir = RedirectText(self.noteWindow)
         # sys.stdout = redir
         sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
@@ -75,60 +68,64 @@ class cw_window(wx.Panel):
         sizer.Add(self.cw_manage_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
         cw_ticket_info_btn = wx.Button(self, label='Search Information')
         cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketInfo)
+        cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
         sizer.Add(cw_ticket_info_btn, 0, wx.ALL | wx.CENTER, 5)
         ##########################################################################
        
-        ####################### CW Manage Notes ##################################
-        # self.cw_manage_text_ctrl = wx.TextCtrl(panel1)
-        # sizer.Add(self.cw_manage_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
-        cw_notes_btn = wx.Button(self, label='Ticket Notes')
-        cw_notes_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
-        sizer.Add(cw_notes_btn, 0, wx.ALL | wx.CENTER, 5)
-        ##########################################################################
+        # ####################### CW Manage Notes ##################################
+        # # self.cw_manage_text_ctrl = wx.TextCtrl(panel1)
+        # # sizer.Add(self.cw_manage_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
+        # cw_notes_btn = wx.Button(self, label='Ticket Notes')
+        # cw_notes_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
+        # sizer.Add(cw_notes_btn, 0, wx.ALL | wx.CENTER, 5)
+        # ##########################################################################
         
         
         
         self.SetSizer(sizer)
         self.Show()
     
-    def cw_manage(self, event):
-        value = Asset.p
+
+    def getTicketInfo(self,text):
+        value = self.cw_manage_text_ctrl.GetValue().strip()
         if not value:
             print("You did not enter anything!")
         else:
             ts = ticket_search(value)
-            print(ts.getTimeEntry())
-     
-    def getTicketInfo(self,text):
-        value = self.cw_manage_text_ctrl.GetValue().strip()
-        ts = ticket_search(value)
-        gt = ts.getTicketInfo()
-        # index = 0
-        # self.ticketInfo.InsertItem(index, gt.id)
-        self.ticketInfo.write(str(gt.id)+'\n')
-        self.ticketInfo.write(gt.summary+"\n")
-        self.ticketInfo.write(gt.status['name'])
-        # index += 1
-     
-     
+            gt = ts.getTicketInfo()
+            # index = 0
+            # self.ticketInfo.InsertItem(index, gt.id)
+            self.ticketInfo.write(str(gt.id)+'\n')
+            self.ticketInfo.write(gt.summary+"\n")
+            self.ticketInfo.write(gt.status['name'])
+            text.Skip()
      
      
     def getTimeEntries(self,text):
         value = self.cw_manage_text_ctrl.GetValue().strip()
-        ts = ticket_search(value)
-        ts.getTimeEntry()
-        for timeEntry in ts.getTimeEntry():
-            yield timeEntry
+        if not value:
+            print("You did not enter anything!")
+        else:
+            ts = ticket_search(value)
+            ts.getTimeEntry()
+            for timeEntry in ts.getTimeEntry():
+                yield timeEntry
     
     def getTicketNotes(self,text):
         value = self.cw_manage_text_ctrl.GetValue().strip()
-        ts = ticket_search(value)
-        tn = ts.getTicketNotes()
-        print(len(tn))
-        for i in tn:
-            ticket_text = i.text
-            self.noteWindow.write(ticket_text)
-            self.noteWindow.write('\n')
+        if not value:
+            print("You did not enter anything!")
+        else:
+            ts = ticket_search(value)
+            tn = ts.getTicketNotes()
+            te = ts.getTimeEntry()
+            self.noteWindow.write("###################################################################################################################################################################################################################################")
+            for i in tn:
+                ticket_text = i.text
+                self.noteWindow.write(ticket_text)
+                self.noteWindow.write('\n')
+                self.noteWindow.write("###################################################################################################################################################################################################################################")
+            text.Skip()
         
       
 

@@ -4,7 +4,7 @@ from rich import print
 
 import os,sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from doorKey import config
+from VeritickAPP.doorKey import config
 
 ### Connectwise Settings
 AUTH=config['cwAUTH']
@@ -51,6 +51,7 @@ class ticket_search:
         ls = list(ticket_notes)
         if ls:
             return ls
+        return False
        
         
 
@@ -58,6 +59,8 @@ class ticket_search:
 if __name__ == '__main__':  
     ts = ticket_search(326855)
     gt = ts.getTicketNotes()
+    print("#########################################")
     for i in gt:
         print(i.text)
+        print("#########################################")
     
