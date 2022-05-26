@@ -3,3 +3,5 @@ doorKey.py
 venv/
 _cache/
 data.h5
+test.py
+backup_mail.py

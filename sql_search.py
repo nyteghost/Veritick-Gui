@@ -2,7 +2,6 @@ from pandasgui import show
 import pandas as pd
 from conn_create import *
 
-
 conn = open_connection()
 
 
@@ -11,21 +10,33 @@ def sqlCall(self,queryName,query,variableName):
     variableName = variable= pd.read_sql(queryName , conn)
     self.variableName = variableName
 
-
-
-### Asset Search
-def assetSearch(assetNumber):
-    assetUPSSearch_query = fr"EXEC uspUPSDataByAssetNum {assetNumber}" # Checks Unreturned Equipment in SQL by STID
-    # assetUPSSearch = pd.read_sql(assetUPSSearch_query , conn) 
-    assetUPSSearch = execute_query(assetUPSSearch_query, parameters=None, conn=None) 
-    show(assetUPSSearch)
-
 ### Asset Search
 def assetSearch_newWindow(assetNumber):
     assetUPSSearch_query = fr"EXEC uspUPSDataByAssetNum {assetNumber}" # Checks Unreturned Equipment in SQL by STID
     # assetUPSSearch = pd.read_sql(assetUPSSearch_query , conn) 
     assetUPSSearch = execute_query(assetUPSSearch_query, parameters=None, conn=None) 
     return assetUPSSearch
+
+class assetSearch:
+    def __init__(self, assetNumber):
+        self.assetNumber = assetNumber
+        self.familyLookupValue = None
+        self.currentAssignValue = None
+
+    def assetSearch(self):
+        assetUPSSearch_query = fr"EXEC uspUPSDataByAssetNum {self.assetNumber}" # Checks Unreturned Equipment in SQL by STID
+        # assetUPSSearch = pd.read_sql(assetUPSSearch_query , conn) 
+        assetUPSSearch = execute_query(assetUPSSearch_query, parameters=None, conn=None) 
+        show(assetUPSSearch)
+    
+    def returnAll(self):
+        assetUPSSearch_query = fr"EXEC uspUPSDataByAssetNum {self.assetNumber}"
+        assetUPSSearch = execute_query(assetUPSSearch_query, parameters=None, conn=None)
+        dataset = {
+            'Asset UPS Information':assetUPSSearch,
+        }
+        show(**dataset)
+
 
 ### Family Search    
 class familySearch:
