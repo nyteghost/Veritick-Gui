@@ -3,13 +3,19 @@ import wx.grid
 from veritick import main_run
 import better_exceptions; better_exceptions.hook()
 import sys
+import _thread
+import _thread
+from wx.lib.expando import ExpandoTextCtrl
+import os
 
-class TicketWindow(wx.Frame):
+
+class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-
-        super(TicketWindow, self).__init__(parent, title = title, size = (1640,1100))
+        super(MainWindow, self).__init__(parent, title = title, size = (1640,1100))
+        redirectPanel(self)
+        
+        
         self.Centre()
-        cw_window(self)
         self.createStatusBar()
         self.createMenu()   
 
@@ -17,67 +23,52 @@ class TicketWindow(wx.Frame):
         self.CreateStatusBar() #A Statusbar at the bottom of the window
     
     def createMenu(self):
-    
         menu= wx.Menu()
         menuExit = menu.Append(wx.ID_EXIT, "E&xit", "Quit application")
-
         menuBar = wx.MenuBar()
         menuBar.Append(menu,"&File")
         self.SetMenuBar(menuBar)
-
         self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
 
     def OnExit(self, event):
         self.Close(True)   
-        
-class cw_window(wx.Panel):
+   
+    def new_window(self, event):
+        secondWindow = MainWindow(None, "Verification Process Made Easy")
+        secondWindow.Show()
+    
+    def ask(parent=None, message='', default_value=''):
+        dlg = wx.TextEntryDialog(parent, message, defaultValue=default_value)
+        dlg.ShowModal()
+        result = dlg.GetValue()
+        dlg.Destroy()
+        return result    
+      
+class redirectPanel(wx.Panel):
     title = "new Window"
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
         sizer = wx.BoxSizer(wx.VERTICAL)   
-        
-        # self.ticketInfo = wx.ListCtrl(
-        #     self, 
-        #     size = (-1 , - 1),
-        #     style=wx.LC_REPORT | wx.BORDER_SUNKEN
-        # )
-        # self.ticketInfo.InsertColumn(0, 'Ticket Number')
-        # self.ticketInfo.InsertColumn(1, 'Summary')
-        # self.ticketInfo.InsertColumn(2, 'Status')
-        # sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
-        self.veritick = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)        
+        self.veritick = ExpandoTextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY)        
         redir = RedirectText(self.veritick)
         sys.stdout = redir
-        # self.noteWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.EXPAND)
-        # redir = RedirectText(self.noteWindow)
-        # sys.stdout = redir
+
         sizer.Add(self.veritick,0, wx.ALL | wx.EXPAND, 5)
-        # sizer.Add(self.noteWindow, 0, wx.ALL | wx.EXPAND, 5) 
-    
-        # wx.CallLater(10,)
+
         self.SetBackgroundColour(wx.Colour(100,100,100))
         self.Centre()
-              
-        # asset_my_btn = wx.Button(panel1, label='Ticket Search')
-        # asset_my_btn.Bind(wx.EVT_BUTTON, self.cw_manage)
-        # sizer.Add(asset_my_btn, 0, wx.ALL | wx.CENTER, 5) 
+
         
-        ###################### CW Manage Ticket Information #######################
+        ###################### Veritick Submit Button ############$$$$$###########
         self.veritick_text_ctrl = wx.TextCtrl(self)
+        self.veritick_text_ctrl.SetHint('Ticket Number')
         sizer.Add(self.veritick_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
         veritick_btn = wx.Button(self, label='Search Information')
         veritick_btn.Bind(wx.EVT_BUTTON, self.veritick_on_press)
         sizer.Add(veritick_btn, 0, wx.ALL | wx.CENTER, 5)
         ##########################################################################
-        # self.yourtextctrl = wx.TextCtrl(self)
-        # sizer.Add(self.yourtextctrl, 0, wx.ALL | wx.EXPAND, 5)
-        # yes_btn = wx.Button(self, label='Yes')
-        # yes_btn.Bind(wx.EVT_BUTTON, self.OnTextEnter)
-        # sizer.Add(yes_btn, 0, wx.ALL | wx.CENTER, 5)
 
 
-        
-        
         self.SetSizer(sizer)
         self.Show()
     
@@ -86,8 +77,15 @@ class cw_window(wx.Panel):
         if not value:
             print("You didn't enter anything!")
         else:
-            main_run(value)
-            
+            i = self.veritick.XYToPosition(0, 400)
+            self.veritick.Remove(0,i)
+            # main_run(value)
+            _thread.start_new_thread(main_run,(value,))
+    
+
+        
+
+
 
 
     #here you have your input and you can store it o call a function with it
@@ -114,6 +112,12 @@ class cw_window(wx.Panel):
     #         yield item
 
 
+
+
+
+
+
+
 class RedirectText(object):
     def __init__(self,aWxTextCtrl):
         self.out = aWxTextCtrl
@@ -121,8 +125,12 @@ class RedirectText(object):
     def write(self,string):
         self.out.WriteText(string)
 
+
+
+
 if __name__ == '__main__':  
     app = wx.App(False)
-    window = TicketWindow(None, "Verification Process Made Easy")
+    window = MainWindow(None, "Verification Process Made Easy")
     window.Show()
-    app.MainLoop()
+    _thread.start_new_thread(app.MainLoop(),())
+    # app.MainLoop()

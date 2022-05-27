@@ -1,4 +1,6 @@
 __pycache__/
 _cache/
 VeritickAPP/doorKey.py
-debugger.log
+***.log
+VeritickAPP/ask.py
+test.py

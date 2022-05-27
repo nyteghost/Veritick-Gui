@@ -11,19 +11,36 @@ import re,os,sys
 from doorKey import config
 from ticket_search import *
 from notes_for_fillin import *
-
+import _thread
+import tkinter as tk
+from tkinter import ttk
+from turtle import textinput
+import turtle
 ### Settings
 better_exceptions.MAX_LENGTH = None
 logger.add("./debugger.log", backtrace=True, diagnose=True,rotation="12:00")
 debug = 0
 
+def turtletext(boxName,text):
+    sc = turtle.Screen()
+    sc.setup(0, 0)
+    result = textinput(boxName,text)
+    sc.bye()  
+    if result == '':
+        exit()
+    return result
 
 @logger.catch
 def main_run(ticketID):
+    print(ticketID)
     with indent(4, quote='>>>'):
         print()
-        print("To update Master Update, press Y. Otherwise press N to just show.")
-        update_master_update = 'n'
+
+        
+        update_master_update = turtletext("Master Update Status","To update Master Update, press Y. Otherwise press N to just show.")
+        
+        print(update_master_update)
+        # update_master_update = 'n'
         if update_master_update == "Y" or update_master_update == "y":
             update_master_updater = 1
             print("Update MU set to :"+str(update_master_updater))
@@ -38,6 +55,9 @@ def main_run(ticketID):
             returnlabelsWS = wks['IndvReturnLabels']
         elif update_master_update == "N" or update_master_update == "n":
                 update_master_updater = 0
+                print("Update MU set to :"+str(update_master_updater))
+        elif update_master_update == None:
+            exit()      
         else:
             pass    
             
@@ -280,18 +300,21 @@ def main_run(ticketID):
                                 elif "charger" in Equipment_Requested:
                                     ERI = "3"
                                 if "headset" in Equipment_Requested:
-                                    input('Headset Equipment_Requested being requested. Please verify manually.')    
-                        
-                        
+                                    input('Headset Equipment_Requested being requested. Please verify manually.')      
                     else:
                         print('No device request information found.\nPlease make your selection below.')
                         if staff == 0:
                             Equipment_Requested = ["1) Replacement Student Kit", "2) Replacement Student Printer", "3) Charger"]
                         elif staff ==1:
                             Equipment_Requested = ["1) Replacement Staff Kit", "2) Replacement Staff Printer", "3) Charger"]
-                        print("\n".join(Equipment_Requested))
-                        ERI = input()
-                        rlm = input('Please enter the label method requested as it reads exactly in the note.')
+                        # print("\n".join(Equipment_Requested))
+                        
+                        
+                        ERI = turtletext('Equipment Requested',"\n".join(Equipment_Requested))
+                        # ERI = 'Please enter the label method requested as it reads exactly in the note.'
+                        # rlm = input('Please enter the label method requested as it reads exactly in the note.')
+                        
+                        rlm = turtletext("Label Requested",'Please enter the label method requested as it reads exactly in the note.')
                         if rlm.strip() == "PNM":
                             Label_Method_Decision = "Print Return Label at SCA"
                         elif rlm.strip() == "ERL":
@@ -313,8 +336,9 @@ def main_run(ticketID):
                             Equipment_Requested = "Replacement Staff Kit"
                         equipment_reason_for_return = ["1) Display", "2) OS/MB", "3) Keyboard", "4) Camera", "5) Audio/Mic", "6) Battery", "7) Physical Damage"]
                         print(style.BLUE+"Choose Return Reason: "+style.RESET)
-                        print("\n".join(equipment_reason_for_return))
-                        RFRI = input()
+                        # print("\n".join(equipment_reason_for_return))
+                        # RFRI = input()
+                        RFRI = turtletext("Equipment Reason for Return","\n".join(equipment_reason_for_return))
                         if RFRI == "1":
                             Reason_For_Return = "Display Issue"
                         elif RFRI == "2":
@@ -342,7 +366,8 @@ def main_run(ticketID):
                                 Printer_Reason_For_Return = ["1) Hardware", "2) Software"]
                                 print("Choose Return Reason: ")
                                 print("\n".join(Printer_Reason_For_Return))
-                                RFRI = input()
+                                # RFRI = input()
+                                RFRI = turtletext("Printer Reason for Return","\n".join(Printer_Reason_For_Return))
                                 if RFRI == "1":
                                     Reason_For_Return = "Printer Hardware Issue"
                                 elif RFRI == "2":
@@ -394,7 +419,7 @@ def main_run(ticketID):
                                 for model in model_list:
                                     index_count = index_count+1
                                     print(index_count , ") " + model)
-                                Model_Choice = input()
+                                Model_Choice = turtletext("Model Choice","")
                 data = {
                     'Company': ''
                     ,'Contact' : Contact
@@ -626,4 +651,4 @@ def main_run(ticketID):
 
 
 if __name__ == '__main__': 
-    main_run(364190  )
+    main_run(365891)

@@ -1,9 +1,8 @@
+import os,sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from connectpyse.time import time_entries_api
 from connectpyse.service import tickets_api,ticket_notes_api, ticket_note,ticket,tickets_api
 from rich import print
-
-import os,sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from VeritickAPP.doorKey import config
 
 ### Connectwise Settings
@@ -58,9 +57,9 @@ class ticket_search:
 
 if __name__ == '__main__':  
     ts = ticket_search(326855)
-    gt = ts.getTicketNotes()
+    gt = ts.getTimeEntry()
     print("#########################################")
     for i in gt:
-        print(i.text)
+        print(i.notes)
         print("#########################################")
     

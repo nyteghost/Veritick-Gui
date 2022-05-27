@@ -2,10 +2,13 @@ import wx
 import wx.grid
 from sql_search import *
 from cw_search import ticket_search
-
-
+from concurrent import futures
+import time
+import _thread
 
 import better_exceptions; better_exceptions.hook()
+thread_pool_executor = futures.ThreadPoolExecutor(max_workers=1)
+
 
 class TicketWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -48,12 +51,14 @@ class cw_window(wx.Panel):
         # self.ticketInfo.InsertColumn(1, 'Summary')
         # self.ticketInfo.InsertColumn(2, 'Status')
         # sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
-        self.ticketInfo = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)        
+        self.ticketInfo = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.EXPAND)        
         self.noteWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.EXPAND)
+        self.timeEntryWindow = wx.TextCtrl(self, -1, size=(-1,200), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.EXPAND)
         # redir = RedirectText(self.noteWindow)
         # sys.stdout = redir
         sizer.Add(self.ticketInfo,0, wx.ALL | wx.EXPAND, 5)
         sizer.Add(self.noteWindow, 0, wx.ALL | wx.EXPAND, 5) 
+        sizer.Add(self.timeEntryWindow, 0, wx.ALL | wx.EXPAND, 5) 
     
         # wx.CallLater(10,)
         self.SetBackgroundColour(wx.Colour(100,100,100))
@@ -68,7 +73,8 @@ class cw_window(wx.Panel):
         sizer.Add(self.cw_manage_text_ctrl, 0, wx.ALL | wx.EXPAND, 5) 
         cw_ticket_info_btn = wx.Button(self, label='Search Information')
         cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketInfo)
-        cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
+        # cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTicketNotes)
+        # cw_ticket_info_btn.Bind(wx.EVT_BUTTON, self.getTimeEntries)
         sizer.Add(cw_ticket_info_btn, 0, wx.ALL | wx.CENTER, 5)
         ##########################################################################
        
@@ -91,25 +97,32 @@ class cw_window(wx.Panel):
         if not value:
             print("You did not enter anything!")
         else:
+            tic = time.time()
+            thread_pool_executor.submit(self.blocking_code)
             ts = ticket_search(value)
             gt = ts.getTicketInfo()
+            tn = ts.getTicketNotes()
+            te = ts.getTimeEntry()
             # index = 0
             # self.ticketInfo.InsertItem(index, gt.id)
             self.ticketInfo.write(str(gt.id)+'\n')
             self.ticketInfo.write(gt.summary+"\n")
             self.ticketInfo.write(gt.status['name'])
+            self.noteWindow.write("###################################################################################################################################################################################################################################")
+            for i in tn:
+                ticket_notes= i.text
+                self.noteWindow.write(ticket_notes)
+                self.noteWindow.write('\n')
+                self.noteWindow.write("###################################################################################################################################################################################################################################")
+            
+            for i in te:
+                ticket_timeEntry = i.notes
+                self.timeEntryWindow.write(ticket_timeEntry)
+                self.timeEntryWindow.write('\n')
+                self.timeEntryWindow.write("###################################################################################################################################################################################################################################")
+            toc = time.time()
+            print('Done in {:.4f} seconds'.format(toc-tic))
             text.Skip()
-     
-     
-    def getTimeEntries(self,text):
-        value = self.cw_manage_text_ctrl.GetValue().strip()
-        if not value:
-            print("You did not enter anything!")
-        else:
-            ts = ticket_search(value)
-            ts.getTimeEntry()
-            for timeEntry in ts.getTimeEntry():
-                yield timeEntry
     
     def getTicketNotes(self,text):
         value = self.cw_manage_text_ctrl.GetValue().strip()
@@ -121,11 +134,41 @@ class cw_window(wx.Panel):
             te = ts.getTimeEntry()
             self.noteWindow.write("###################################################################################################################################################################################################################################")
             for i in tn:
-                ticket_text = i.text
-                self.noteWindow.write(ticket_text)
+                ticket_notes= i.text
+                self.noteWindow.write(ticket_notes)
                 self.noteWindow.write('\n')
                 self.noteWindow.write("###################################################################################################################################################################################################################################")
+            
+            for i in te:
+                ticket_timeEntry = i.notes
+                self.timeEntryWindow.write(ticket_timeEntry)
+                self.timeEntryWindow.write('\n')
+                self.timeEntryWindow.write("###################################################################################################################################################################################################################################")
             text.Skip()
+     
+    def getTimeEntries(self,text):
+        value = self.cw_manage_text_ctrl.GetValue().strip()
+        if not value:
+            print("You did not enter anything!")
+        else:
+            ts = ticket_search(value)
+            te = ts.getTimeEntry()
+            self.noteWindow.write("###################################################################################################################################################################################################################################")
+            for i in te:
+                ticket_text = i.notes
+                self.timeEntryWindow.write(ticket_text)
+                self.timeEntryWindow.write('\n')
+                self.timeEntryWindow.write("###################################################################################################################################################################################################################################")
+            text.Skip()
+    
+    def blocking_code(self):
+        wx.CallAfter(self.set_label_text, 'running')
+  
+        for number in range(5):
+            wx.CallAfter(self.listbox_insert, str(number))
+            time.sleep(1)
+  
+        wx.CallAfter(self.set_label_text, 'not running')
         
       
 
