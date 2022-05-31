@@ -4,7 +4,6 @@ from veritick import main_run
 import better_exceptions; better_exceptions.hook()
 import sys
 import _thread
-import _thread
 from wx.lib.expando import ExpandoTextCtrl
 import os
 
@@ -82,40 +81,6 @@ class redirectPanel(wx.Panel):
             # main_run(value)
             _thread.start_new_thread(main_run,(value,))
     
-
-        
-
-
-
-
-    #here you have your input and you can store it o call a function with it
-    
-    # def buttonloop(self,event):
-    #     os.chdir('d:/KKSC')
-    #     dic = getDic()
-    #     print dic[0], dic[1], dic[2]
-    #     text = tokenize_editor_text(self.control.GetValue())        
-
-    #     try:  ##Exception handler for first occurence(will also cause the list to loop)
-    #         print self.wordlist.next()
-    #     except:
-    #         self.wordlist = getwordlist(text,dic)
-    #         print self.wordlist.next()
-
-    # def getwordlist(self,text,dic):
-    #     a = []
-    #     for word in text:
-    #         if word not in dic:
-    #             misspelled = word
-    #             a.append(misspelled)
-    #     for item in a:
-    #         yield item
-
-
-
-
-
-
 
 
 class RedirectText(object):

@@ -16,6 +16,7 @@ import tkinter as tk
 from tkinter import ttk
 from turtle import textinput
 import turtle
+
 ### Settings
 better_exceptions.MAX_LENGTH = None
 logger.add("./debugger.log", backtrace=True, diagnose=True,rotation="12:00")
@@ -31,19 +32,23 @@ def turtletext(boxName,text):
     return result
 
 @logger.catch
-def main_run(ticketID):
+def main_run(ticketID,switch_state):
     print(ticketID)
     with indent(4, quote='>>>'):
         print()
 
+        update_master_update = None
+        if switch_state == 1:
+            update_master_update = 'Y'
+        else:
+            update_master_update = 'N'
         
-        update_master_update = turtletext("Master Update Status","To update Master Update, press Y. Otherwise press N to just show.")
         
-        print(update_master_update)
+        
         # update_master_update = 'n'
         if update_master_update == "Y" or update_master_update == "y":
             update_master_updater = 1
-            print("Update MU set to :"+str(update_master_updater))
+            print("Sending to Master Updater Activated")
             print('Opening Master Update excel file.')
             ### Xlwings Settings ###
             localuser = getpass.getuser()
@@ -55,7 +60,7 @@ def main_run(ticketID):
             returnlabelsWS = wks['IndvReturnLabels']
         elif update_master_update == "N" or update_master_update == "n":
                 update_master_updater = 0
-                print("Update MU set to :"+str(update_master_updater))
+                print("Using PandasGUI for copy and paste ability.")
         elif update_master_update == None:
             exit()      
         else:
