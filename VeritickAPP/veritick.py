@@ -24,6 +24,7 @@ debug = 0
 
 def turtletext(boxName,text):
     sc = turtle.Screen()
+    sc.bgcolor=(42,45,46)
     sc.setup(0, 0)
     result = textinput(boxName,text)
     sc.bye()  
@@ -648,8 +649,7 @@ def main_run(ticketID,switch_state):
             # except Exception as e:
             #     print(e)
             #     print('Issue with Outstanding DataFrame Creation')
-
-
+    print('Done')
 
 
 
