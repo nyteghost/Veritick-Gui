@@ -2,7 +2,6 @@ import re,os,sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from connectpyse.time import time_entries_api
 from connectpyse.service import tickets_api
-from clint.textui import puts, colored, indent
 from loguru import logger
 import better_exceptions; better_exceptions.hook()
 import re
@@ -11,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy import exc
 from sqlalchemy.engine import URL
 import pyodbc
-from VeritickAPP.doorKey import config
+from doorKey import config
 
 ### SQL Connection Settings
 connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(config['database']['Server'])+';''Database=isolatedsafety;''UID='+(config['database']['UID'])+';''PWD='+(config['database']['PWD'])+';' 
@@ -61,12 +60,12 @@ class ticket_search:
         
     def find_device(self):
         ticket_summary = self.en.ticket['summary'].lower()
-        puts(style.CYAN+"Ticket Summary:"+ticket_summary+style.RESET)
+        print(style.CYAN+"Ticket Summary:"+ticket_summary+style.RESET)
         if 'charger' in ticket_summary:
             device_requested_in_function = 'charger'
             if self.debug == 1:
                 logger.debug('Found Charger in ticket_summary.')
-            puts('Device Requested:',device_requested_in_function) 
+            print('Device Requested:',device_requested_in_function) 
             return device_requested_in_function
         else:
             device_list = ['windows','chromebook','printer','headset','headphone']
@@ -149,7 +148,7 @@ class ticket_search:
                 logger.debug('"Shipping Address(.*)" did not find anything.')
             sa=input('Enter shipping address from note.')
         address_ratio = fuzz.ratio(sa,street_name_fix(self.address).lower())
-        # puts("Shipping Address from ticket: "+str(sa)+" "+str(address_ratio)+", match to database entry.")
+        # print("Shipping Address from ticket: "+str(sa)+" "+str(address_ratio)+", match to database entry.")
         return address_ratio, sa
             
     def compare_email_address(self):
