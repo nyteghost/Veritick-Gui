@@ -15,7 +15,7 @@ import tkinter as tk
 from tkinter import ttk
 from turtle import textinput
 import turtle
-from veriTable import tableShow
+from veriTableClass import tableShow
 
 ### Settings
 better_exceptions.MAX_LENGTH = None
@@ -63,7 +63,7 @@ def main_run(ticketID,switch_state):
         returnlabelsWS = wks['IndvReturnLabels']
     elif update_master_update == "N" or update_master_update == "n":
             update_master_updater = 0
-            print("Using PandasGUI for copy and paste ability.")
+            print("Using veriTick for copy and paste ability.")
     elif update_master_update == None:
         exit()      
     else:
