@@ -91,15 +91,12 @@ class MyTable(Table):
 
     def popupMenu(self, event, rows=None, cols=None, outside=None):
             """Custom right click menu"""
-
             popupmenu = Table.popupMenu(event)
             #popupmenu add_command here
-
             return popupmenu
     
     def copy(self, rows, cols=None):
         """Copy cell contents to clipboard"""
-
         data = self.getSelectedDataFrame()
         try:
             if len(data) == 1 and len(data.columns)==1:
