@@ -37,9 +37,7 @@ def turtletext(boxName,text):
 # @logger.catch
 def main_run(ticketID,switch_state):
     print(ticketID)
-    
     print()
-
     update_master_update = None
     if switch_state == 1:
         update_master_update = 'Y'
@@ -63,7 +61,7 @@ def main_run(ticketID,switch_state):
         returnlabelsWS = wks['IndvReturnLabels']
     elif update_master_update == "N" or update_master_update == "n":
             update_master_updater = 0
-            print("Using veriTick for copy and paste ability.")
+            print("Using veriTable for copy and paste ability.")
     elif update_master_update == None:
         exit()      
     else:

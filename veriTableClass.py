@@ -26,6 +26,9 @@ dframe = Unreturned
 
 
 
+
+
+
 class tableShow(customtkinter.CTk):
     """Basic test frame for the table"""
     def __init__(self,dFrame, parent=None):
@@ -70,7 +73,6 @@ class tableShow(customtkinter.CTk):
         pt.show()
         f.pack(fill='x',expand=True)
 
-        
         
         f.update()
         # print(f.winfo_width())

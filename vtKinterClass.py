@@ -11,6 +11,12 @@ from customtkinter import CTkButton as Button
 from customtkinter import CTkFrame
 from pandastable import Table, TableModel, config
 import os 
+import psutil
+
+
+
+
+
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -36,11 +42,9 @@ img_dir = resource_path("images")
 img_file = img_dir+"\sca-logo.jpg"
 
 
-class veriTick(customtkinter.CTk):
+class vtKinterClass(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-    
-    
         img = ImageTk.PhotoImage(Image.open(img_file))
         self.title("VeriTick")
         self.geometry = (1200,1070)
@@ -54,7 +58,6 @@ class veriTick(customtkinter.CTk):
         self.text_frame.grid(row=2, column=0, padx=10, pady=10)
         self.my_text = Text(self.text_frame, height=20, width=67, wrap=WORD, bd=0, bg="#292929", fg="silver")
 
-
         def veritick_on_press():
             value = self.ticketEntry.get().strip()
             switch_state = switch_event()
@@ -63,14 +66,13 @@ class veriTick(customtkinter.CTk):
             else:
                 print("*******************************************************")
                 _thread.start_new_thread(main_run,(value,switch_state))  
-                
+
         def switch_event():
             self.my_text.delete("1.0","end")
             if self.switch_1.get() == 'on':
                 switch_state = 1
             else: switch_state = 0
             return switch_state
-
 
         self.ticketEntryFrame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
         self.ticketEntryFrame.grid(row=0, column=0, padx=10, pady=10)
@@ -94,48 +96,14 @@ class veriTick(customtkinter.CTk):
         def redirector(inputStr):
             self.my_text.insert(INSERT, inputStr)
         sys.stdout.write = redirector
-            
     
-    def create_toplevel(self):
-        window = customtkinter.CTk()
-        dFrame = dFrame
-        parent = parent
-    
-        window.attributes('-topmost', 1)
-        
-        window_width = 1920
-        window_height = 200
-        
-        # get the screen dimension
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-        
-        # find the center point
-        center_x = int(screen_width/2 - window_width / 2)
-        center_y = int(screen_height/2 - window_height / 2)
-        
-        
-        window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-        window.title('veriTable')
-        f = CTkFrame(window)
-        f.pack(fill="both",expand=True,padx=20, pady=20)
-        # df = TableModel.getSampleData()
-        table = pt = Table(f, dataframe=dFrame,
-                                showtoolbar=False, showstatusbar=False)
-        pt.show()
-        options = {'colheadercolor':'green','floatprecision': 5}
-        config.apply_options(options, pt)
-        pt.show()
-        pt.update()
-        # print(pt.winfo_reqwidth())
-        # print(pt.winfo_reqheight())
-    
-
+    def start(self):
+        self.mainloop()
 
 
 
 if __name__ == '__main__':
-    app = veriTick()
+    app = vtKinterClass()
     app.mainloop()
     # try:
     #     _thread.start_new_thread(root.mainloop(),())
