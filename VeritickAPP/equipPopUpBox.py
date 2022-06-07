@@ -97,7 +97,7 @@ class popUp(customtkinter.CTk):
             self.radio_button.grid(row=y,column=2,sticky='nw')
             self.printBTNList.append(rb)
             
-        self.my_button = customtkinter.CTkButton(master=self, text="Submit", command = self.printSubmitBTN)
+        self.my_button = customtkinter.CTkButton(master=self, text="Submit", command = self.destroy)
         self.my_button.grid(row=8,column=2,sticky='nw')
         
     def submitButton(self):
@@ -110,24 +110,26 @@ class popUp(customtkinter.CTk):
             for widget in self.rfrBTNList:
                 widget.grid_remove()
             self.createPrinterChoices()
+        if self.btn1.get()=='3':
+            for widget in self.rfrBTNList:
+                widget.grid_remove()
+            self.my_button = customtkinter.CTkButton(master=self, text="Submit", command = self.destroy)
+            self.my_button.grid(row=8,column=2,sticky='nw')           
             
     
     def submitButton2(self):
-        print(self.btn2.get())
+        self.destroy
 
     
-
     def printSubmitBTN(self):
         # print("Printer"+self.btn2.get())
-        
-        global qwerty
-        qwerty="Printer"+self.btn2.get()
-        return qwerty
+        pass
     
     
     def start(self):
         self.mainloop()
-        return "Printer"+self.btn2.get()
+        return self.btn1.get(),self.btn2.get()
+
     
 
 
