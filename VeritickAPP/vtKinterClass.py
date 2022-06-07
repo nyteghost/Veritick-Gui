@@ -3,7 +3,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 import customtkinter
 import sys
-import _thread
+# import _thread
 from veritick import main_run
 from customtkinter import CTkToplevel as Toplevel
 from customtkinter import CTkLabel as Label
@@ -12,9 +12,13 @@ from customtkinter import CTkFrame
 from pandastable import Table, TableModel, config
 import os 
 import psutil
+import threading
+import queue
+from concurrent.futures import process
+process.__name__
 
 
-
+q = queue.Queue()
 
 
 
@@ -24,18 +28,6 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-class popupWindow(object):
-    def __init__(self,master):
-        top=self.top=Toplevel(master)
-        self.l=Label(top,text="Hello World")
-        self.l.pack()
-        self.e=Entry(top)
-        self.e.pack()
-        self.b=Button(top,text='Ok',command=self.cleanup)
-        self.b.pack()
-    def cleanup(self):
-        self.value=self.e.get()
-        self.top.destroy()
 
 img_dir = resource_path("images")
                   
@@ -47,64 +39,77 @@ class vtKinterClass(customtkinter.CTk):
         super().__init__()
         img = ImageTk.PhotoImage(Image.open(img_file))
         self.title("VeriTick")
-        self.geometry = (1200,1070)
+        
+        #### Main Window ###
+        self.geometry(f"{1200}x{1070}")
         self.panel = Label(self, image = img)
-        self.panel.pack(side = "bottom", fill = "both", expand = "yes")
+        self.panel.pack(side = "bottom", fill = "both", expand = True)
 
-        self.MainFrame = customtkinter.CTkFrame(self, corner_radius=10)
+        
+        ### Main Frame ###
+        self.MainFrame = customtkinter.CTkFrame(self, corner_radius=10,width=1000,height=500)
         self.MainFrame.pack(pady=20,expand=True)
 
-        self.text_frame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
+        self.text_frame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10,)
         self.text_frame.grid(row=2, column=0, padx=10, pady=10)
-        self.my_text = Text(self.text_frame, height=20, width=67, wrap=WORD, bd=0, bg="#292929", fg="silver")
+        
+        
+        ### CMD Redirect Frame ###
+        self.my_text = Text(self.text_frame, height=600, width=67, wrap=WORD, bd=0, bg="#292929", fg="silver")
 
-        def veritick_on_press():
-            value = self.ticketEntry.get().strip()
-            switch_state = switch_event()
-            if not value:
-                print("You didn't enter anything!")
-            else:
-                print("*******************************************************")
-                _thread.start_new_thread(main_run,(value,switch_state))  
-
-        def switch_event():
-            self.my_text.delete("1.0","end")
-            if self.switch_1.get() == 'on':
-                switch_state = 1
-            else: switch_state = 0
-            return switch_state
-
+        ### Ticket Entry Section ###
         self.ticketEntryFrame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
         self.ticketEntryFrame.grid(row=0, column=0, padx=10, pady=10)
 
         self.ticketEntry = customtkinter.CTkEntry(self.ticketEntryFrame, width=400, height=40,border_width=1, placeholder_text="Enter Ticket Number",text_color='silver')
         self.ticketEntry.grid(row=0, column=0, padx=10, pady=10)
 
-        self.my_button = customtkinter.CTkButton(self.ticketEntryFrame, text="Lookup", command=veritick_on_press)
+        self.my_button = customtkinter.CTkButton(self.ticketEntryFrame, text="Lookup", command= lambda:threading.Thread(target=self.veritick_on_press).start())
         self.my_button.grid(row=0, column=1, padx=10)
+
+
+        ### CMD Redirect Frame ###
 
         self.switch_frame = customtkinter.CTkFrame(self.MainFrame,corner_radius=10)
         self.switch_frame.grid(row=1, column=0, padx=10, pady=10,sticky='w')
-        self.switch_1 = customtkinter.CTkSwitch(self.switch_frame, text="MU Update", command=switch_event,
+        self.switch_1 = customtkinter.CTkSwitch(self.switch_frame, text="MU Update", command=self.switch_event,
                                             onvalue="on", offvalue="off",bg_color='#2A2D2E')
         self.switch_1.deselect()
         self.switch_1.pack()
 
-        self.my_text.pack(expand=True)
+        self.my_text.pack(fill="both",expand=True)
 
 
         def redirector(inputStr):
             self.my_text.insert(INSERT, inputStr)
         sys.stdout.write = redirector
     
+    def veritick_on_press(self):
+        value = self.ticketEntry.get().strip()
+        switch_state = self.switch_event()
+        if not value:
+            print("You didn't enter anything!")
+        else:
+            print("*******************************************************")
+            # _thread.start_new_thread(main_run,(value,switch_state))
+            main_run(value, switch_state)  
+
+    def switch_event(self):
+        self.my_text.delete("1.0","end")
+        if self.switch_1.get() == 'on':
+            switch_state = 1
+        else: switch_state = 0
+        return switch_state
+    
+    
     def start(self):
         self.mainloop()
 
 
 
-if __name__ == '__main__':
-    app = vtKinterClass()
-    app.mainloop()
+# if __name__ == '__main__':
+#     app = vtKinterClass()
+#     app.mainloop()
     # try:
     #     _thread.start_new_thread(root.mainloop(),())
     # except AttributeError as ex:

@@ -10,12 +10,15 @@ import re,os,sys
 from doorKey import config
 from ticket_search import *
 from notes_for_fillin import *
-import _thread
 import tkinter as tk
 from tkinter import ttk
-from turtle import textinput
+from turtle import textinput,TurtleScreen
 import turtle
 from veriTableClass import tableShow
+import threading
+import queue
+
+
 
 ### Settings
 better_exceptions.MAX_LENGTH = None
@@ -31,6 +34,7 @@ def turtletext(boxName,text):
     if result == '':
         exit()
     return result
+
 
 
 
@@ -98,7 +102,7 @@ def main_run(ticketID,switch_state):
 
     ### ID Input Section
     print('\n')
-    # ticketID = input(style.BLUE + "Please enter ticket number: "+style.RESET)
+    # ticketID = input(style.BLUE + "Please enter ticket number: ")
     # if ticketID == "X" or ticketID == "x":
     #     pass
 
@@ -135,11 +139,11 @@ def main_run(ticketID,switch_state):
             family_status_dict[x]=y    
     except exc.DBAPIError as e:  
         err_origin = str(e.orig)
-        # print(e.statement,"threw an error due to;\n", style.RED+(err_origin)+style.RESET)
+        # print(e.statement,"threw an error due to;\n", style.RED+(err_origin))
         # print(e.args[0])
         qrc = re.search(r"\[([A-Za-z0-9_]+)\]", err_origin)
         if qrc.group(1)== "21000":
-            print(style.RED+"Subquery returned more than 1 value. \nThis is not permitted when the subquery follows =, !=, <, <= , >, >= or when the subquery is used as an expression."+style.RESET)
+            print("Subquery returned more than 1 value. \nThis is not permitted when the subquery follows =, !=, <, <= , >, >= or when the subquery is used as an expression.")
             print('This is usually caused by a user having a ID and another user having the same id but with a Leading 0.')
             print('You will need to run that one manually.')
             logger.exception("Double User found")
@@ -208,105 +212,109 @@ def main_run(ticketID,switch_state):
             else:
                 Address = LG_Street1 + ' ' + LG_Street2 + ' ' + LG_City + ' ' + LG_State + ' ' + LG_Zip
             
+            print("Decision:", Decision)
+            
+            
             if Decision == "Cleared For Shipment":
                 print(Decision)
                 ##Does Address provided match Contact, if not, list together to compare. 
                 if staff == 0:
-                    print("FEL Email: "+ style.CYAN+FEL_Email+style.RESET)
-                    print('LG Email: ' + style.CYAN+str(LG_Email)+style.RESET)
+                    print("FEL Email: "+ FEL_Email)
+                    print('LG Email: ' + str(LG_Email))
                 elif staff ==1:
-                    print("Personal Email: "+ style.CYAN+FEL_Email)
-                    print('Staff Email: ' + style.CYAN+str(LG_Email)+style.RESET)
-                print('Address: '+ style.CYAN+Address+style.RESET)
-                
+                    print("Personal Email: "+ FEL_Email)
+                    print('Staff Email: ' +str(LG_Email))
+                print('Address: '+ Address)
                 ERI = 0
                 getShipFunc = getShippingInfo(OTN,Address,LG_Email)
-                
-                if getShipFunc != False:
+                if getShipFunc != 'False':
+                    print('getShipFunc not False')
                     Equipment_Requested = getShipFunc.find_device()
-                    if Equipment_Requested == 'charger':
-                        ERI = "3"
-                        Label_Method_Decision = ''
-                    else:
-                        if 'hotspot' in Equipment_Requested:
-                            print()
-                            input(style.RED+'This ticket is asking for assistance with a hot spot. Please forward to Sean.'+style.RESET)
-                            pass                            
+                    if Equipment_Requested != None:
+                        print('Equipment Request found.')
+                        if Equipment_Requested == 'charger':
+                            ERI = "3"
+                            Label_Method_Decision = ''
+                        elif 'hotspot' in Equipment_Requested:
+                                print()
+                                turtletext('This ticket is asking for assistance with a hot spot. Please forward to Sean.')
+                                pass                            
                         elif 'windows' in Equipment_Requested:
                             print()
                             if staff == 0:
                                 print("Student Windows Device Requested.")
                             else:
                                 print("Staff Windows Device Requested")
-                            input('Press enter to continue')
-                        troubleshooting_notes = getShipFunc.find_troubleshooting()
-                        Label_Method_Decision = getShipFunc.find_return_label()
-                        if Label_Method_Decision == "Both":
-                            input('Need to send both  Electric Return Label, and include it box.\nPlease press enter to continue.')
-                            Label_Method_Decision = "Email Electronic Return Label"
-                        shipping_ratio,ticket_ship_address = getShipFunc.compare_shipping_address()
-                        email_Ratio,ticket_email = getShipFunc.compare_email_address()
-                        print(style.CYAN+"Device"+style.RESET)
-                        print(Equipment_Requested.strip())
-                        print()
-                        print(style.CYAN+"Troubleshooting Notes"+style.RESET)
-                        print(troubleshooting_notes.strip())
-                        print()
-                        print(style.CYAN+"Return Label Method"+style.RESET)
-                        print(Label_Method_Decision)
-                        print()
-
-                        if shipping_ratio >=85:
-                            print(style.CYAN+"Shipping information "+style.RESET +style.GREEN+str(shipping_ratio)+"%"+style.RESET+" match.")
-                            print("Database Ship: "+style.GREEN+str(Address)+style.RESET)
-                            print("Ticket Ship: "+style.GREEN+str(ticket_ship_address)+style.RESET)
-                        elif  70<= shipping_ratio < 85:
-                            print(style.CYAN+"Shipping information "+style.RESET+style.YELLOW+str(shipping_ratio)+"%"+style.RESET+" match.")
-                            print("Database Ship "+style.YELLOW+str(Address)+style.RESET)
-                            print("Ticket Ship: "+style.YELLOW+str(ticket_ship_address)+style.RESET)
+                            turtletext('Press enter to continue')
                         else:
-                            input('Shipping Address is below the  threshold. Please verify address.')
-                            print(style.CYAN+"Shipping information "+style.RESET+style.RED+str(shipping_ratio)+"%"+style.RESET+" match.")
-                            print("Database Ship: "+style.RED+str(Address)+style.RESET)
-                            print("Ticket Ship: "+style.RED+str(ticket_ship_address)+style.RESET)                            
-                        
-                        print()
-                        
-                        if email_Ratio >=85:
-                            print(style.CYAN+"Email information "+style.RESET +style.GREEN+str(email_Ratio)+"%"+style.RESET+" match.")
-                            print("Database Email: "+style.GREEN+str(LG_Email)+style.RESET)
-                            print("Ticket Email: "+style.GREEN+str(ticket_email)+style.RESET)
-                        elif  70<= email_Ratio < 85:
-                            print(style.CYAN+"Email information "+style.RESET+style.YELLOW+str(email_Ratio)+"%"+style.RESET+" match.")
-                            print("Database Email: "+style.YELLOW+str(LG_Email)+style.RESET)
-                            print("Ticket Email: "+style.YELLOW+str(ticket_email)+style.RESET)
-                        else:
-                            input('Email Address is below the  threshold. Please verify email.')
-                            print(style.CYAN+"Email information "+style.RESET+style.RED+str(email_Ratio)+"%"+style.RESET+" match.")
-                            print("Database Email: "+style.RED+str(LG_Email)+style.RESET)
-                            print("Ticket Email: "+style.RED+str(ticket_email)+style.RESET)
+                            troubleshooting_notes = getShipFunc.find_troubleshooting()
+                            Label_Method_Decision = getShipFunc.find_return_label()
+                            if Label_Method_Decision == "Both":
+                                turtletext('Need to send both  Electric Return Label, and include it box.\nPlease press enter to continue.')
+                                Label_Method_Decision = "Email Electronic Return Label"
+                            shipping_ratio,ticket_ship_address = getShipFunc.compare_shipping_address()
+                            email_Ratio,ticket_email = getShipFunc.compare_email_address()
+                            print("Device")
+                            print(Equipment_Requested.strip())
+                            print()
+                            print("Troubleshooting Notes")
+                            print(troubleshooting_notes.strip())
+                            print()
+                            print("Return Label Method")
+                            print(Label_Method_Decision)
+                            print()
 
-                    
+                            if shipping_ratio >=85:
+                                print("Shipping information "+str(shipping_ratio)+"%"+" match.")
+                                print("Database Ship: "+str(Address))
+                                print("Ticket Ship: "+str(ticket_ship_address))
+                            elif  70<= shipping_ratio < 85:
+                                print("Shipping information "+str(shipping_ratio)+"%"+" match.")
+                                print("Database Ship "+str(Address))
+                                print("Ticket Ship: "+str(ticket_ship_address))
+                            else:
+                                turtletext('Shipping Address is below the  threshold. Please verify address.')
+                                print("Shipping information "+str(shipping_ratio)+"%"+" match.")
+                                print("Database Ship: "+str(Address))
+                                print("Ticket Ship: "+str(ticket_ship_address))                            
                             
-                        if staff ==0:
-                            if "chromebook" in Equipment_Requested:
-                                ERI = "1"
-                            elif "printer" in Equipment_Requested:
-                                ERI = "2"
-                            elif "charger" in Equipment_Requested:
-                                ERI = "3"
-                            elif "headset" in Equipment_Requested:
-                                input('Headset is being requested. Please verify manually.')    
+                            print()
                             
-                        elif staff ==1:
-                            if "windows" in Equipment_Requested:
-                                ERI = "1"
-                            elif "printer" in Equipment_Requested:
-                                ERI = "2"
-                            elif "charger" in Equipment_Requested:
-                                ERI = "3"
-                            if "headset" in Equipment_Requested:
-                                input('Headset Equipment_Requested being requested. Please verify manually.')      
+                            if email_Ratio >=85:
+                                print("Email information "+str(email_Ratio)+"%"+" match.")
+                                print("Database Email: "+str(LG_Email))
+                                print("Ticket Email: "+str(ticket_email))
+                            elif  70<= email_Ratio < 85:
+                                print("Email information "+str(email_Ratio)+"%"+" match.")
+                                print("Database Email: "+str(LG_Email))
+                                print("Ticket Email: "+str(ticket_email))
+                            else:
+                                turtletext('Email Address is below the  threshold. Please verify email.')
+                                print("Email information "+str(email_Ratio)+"%"+" match.")
+                                print("Database Email: "+str(LG_Email))
+                                print("Ticket Email: "+str(ticket_email))
+
+                        
+                                
+                            if staff ==0:
+                                if "chromebook" in Equipment_Requested:
+                                    ERI = "1"
+                                elif "printer" in Equipment_Requested:
+                                    ERI = "2"
+                                elif "charger" in Equipment_Requested:
+                                    ERI = "3"
+                                elif "headset" in Equipment_Requested:
+                                    turtletext('Headset is being requested. Please verify manually.')    
+                                
+                            elif staff ==1:
+                                if "windows" in Equipment_Requested:
+                                    ERI = "1"
+                                elif "printer" in Equipment_Requested:
+                                    ERI = "2"
+                                elif "charger" in Equipment_Requested:
+                                    ERI = "3"
+                                if "headset" in Equipment_Requested:
+                                    turtletext('Headset Equipment_Requested being requested. Please verify manually.')      
                 else:
                     print('No device request information found.\nPlease make your selection below.')
                     if staff == 0:
@@ -327,10 +335,10 @@ def main_run(ticketID,switch_state):
                         Label_Method_Decision = "Email Electronic Return Label"    
                     elif rlm.strip() == "Email":
                         Label_Method_Decision = "Email Electronic Return Label"   
-                
+            
                 print()
                 if troubleshooting_notes:
-                    print("Troubleshooting: "+style.RED+troubleshooting_notes+style.RESET)
+                    print("Troubleshooting: "+troubleshooting_notes)
                 if ERI == 'x':
                     pass   
                 elif ERI == "":
@@ -341,9 +349,8 @@ def main_run(ticketID,switch_state):
                     elif staff ==1:
                         Equipment_Requested = "Replacement Staff Kit"
                     equipment_reason_for_return = ["1) Display", "2) OS/MB", "3) Keyboard", "4) Camera", "5) Audio/Mic", "6) Battery", "7) Physical Damage"]
-                    print(style.BLUE+"Choose Return Reason: "+style.RESET)
-                    # print("\n".join(equipment_reason_for_return))
-                    # RFRI = input()
+                    
+
                     RFRI = turtletext("Equipment Reason for Return","\n".join(equipment_reason_for_return))
                     if RFRI == "1":
                         Reason_For_Return = "Display Issue"
@@ -388,7 +395,7 @@ def main_run(ticketID,switch_state):
                             shipmentClearance = pd.read_sql(shipmentClearanceQuery , conn)
                             Printer_Check = shipmentClearance.loc[shipmentClearance['Dev_Option'].str.contains('Printer')]   
                         else:
-                            print(style.RED +printCheckVariable+style.RESET)
+                            print(printCheckVariable)
                 
                 elif ERI == "3" or "charger" in Equipment_Requested:
                     Charger_Query = f"EXEC uspFamCurrentAssignByOrgID " + STID
@@ -426,94 +433,100 @@ def main_run(ticketID,switch_state):
                                 index_count = index_count+1
                                 print(index_count , ") " + model)
                             Model_Choice = turtletext("Model Choice","")
-            data = {
-                'Company': ''
-                ,'Contact' : Contact
-                ,'Equipment_Requested' : Equipment_Requested
-                ,'Asset_Number' : ''
-                ,'Ship_Method' : ''
-                ,'Reason_For_Return' : [Reason_For_Return]
-                ,'Label_For_Returns' : Label_Method_Decision
-                ,'Street' : ''
-                ,'Street2' : ''
-                ,'City' : ''
-                ,'State' : ''
-                ,'Zip' : ''
-                ,'EO' : EO
-                ,'OTN' : OTN
-                ,'SDO' : ''
-                ,'DDO' : ''
-                ,'SPECIAL_NOTES' : [SPECIAL_NOTES]
-                }
-            df = pd.DataFrame(data, columns = [
-                'Company'
-                ,'Contact'
-                ,'Equipment_Requested'
-                ,'Asset_Number'
-                ,'Ship_Method'
-                ,'Reason_For_Return'
-                ,'Label_For_Returns'
-                ,'Street'
-                ,'Street2'
-                ,'City'
-                ,'State'
-                ,'Zip'
-                ,'EO'
-                ,'OTN'
-                ,'SDO'
-                ,'DDO'
-                ,'SPECIAL_NOTES'
-            ])
+               
 
-            if update_master_updater == 1:
-                x = None
-                while x == None:
-                    for row in range(1, 50):
-                        if x == None:
-                            for col in range(2, 3):
-                                if requestsWS.range((row,col)).value == None:
-                                    print()
-                                    print("The Row is: "+str(row)+" and the column is "+str(col))
-                                    x = row
-                        else:
-                            print("loop ends with",x)
-                            break
-                        
-                # lastRow = requestsWS.range('B' + str(requestsWS.cells.last_cell.row)).end('up').row
-                lastRowFill= 'B'+str(row-1)
-                lastRowFill2 = str(row-1)
-                nRowFill= 'Q'+str(row-1)
-                printFilledRow = f"{lastRowFill}:{nRowFill}"
-                print(lastRowFill)
+            
+                data = {
+                    'Company': ''
+                    ,'Contact' : Contact
+                    ,'Equipment_Requested' : Equipment_Requested
+                    ,'Asset_Number' : ''
+                    ,'Ship_Method' : ''
+                    ,'Reason_For_Return' : [Reason_For_Return]
+                    ,'Label_For_Returns' : Label_Method_Decision
+                    ,'Street' : ''
+                    ,'Street2' : ''
+                    ,'City' : ''
+                    ,'State' : ''
+                    ,'Zip' : ''
+                    ,'EO' : EO
+                    ,'OTN' : OTN
+                    ,'SDO' : ''
+                    ,'DDO' : ''
+                    ,'SPECIAL_NOTES' : [SPECIAL_NOTES]
+                    }
+                df = pd.DataFrame(data, columns = [
+                    'Company'
+                    ,'Contact'
+                    ,'Equipment_Requested'
+                    ,'Asset_Number'
+                    ,'Ship_Method'
+                    ,'Reason_For_Return'
+                    ,'Label_For_Returns'
+                    ,'Street'
+                    ,'Street2'
+                    ,'City'
+                    ,'State'
+                    ,'Zip'
+                    ,'EO'
+                    ,'OTN'
+                    ,'SDO'
+                    ,'DDO'
+                    ,'SPECIAL_NOTES'
+                ])
+
+                if update_master_updater == 1:
+                    x = None
+                    while x == None:
+                        for row in range(1, 50):
+                            if x == None:
+                                for col in range(2, 3):
+                                    if requestsWS.range((row,col)).value == None:
+                                        print()
+                                        print("The Row is: "+str(row)+" and the column is "+str(col))
+                                        x = row
+                            else:
+                                print("loop ends with",x)
+                                break
+                            
+                    # lastRow = requestsWS.range('B' + str(requestsWS.cells.last_cell.row)).end('up').row
+                    lastRowFill= 'B'+str(row-1)
+                    lastRowFill2 = str(row-1)
+                    nRowFill= 'Q'+str(row-1)
+                    printFilledRow = f"{lastRowFill}:{nRowFill}"
+                    print(lastRowFill)
 
 
-                
-                df.columns = df.iloc[0] 
-                df = df[1:]
-                df.head()
-                df = df.iloc[: , 1:]
-                requestsWS.range("A"+lastRowFill2).value = df
-                wb.save()
-                val = requestsWS.range(printFilledRow).value
-                print(val)
-                print()
-                
-            else:
-                tableShow(df)
-
+                    
+                    df.columns = df.iloc[0] 
+                    df = df[1:]
+                    df.head()
+                    df = df.iloc[: , 1:]
+                    requestsWS.range("A"+lastRowFill2).value = df
+                    wb.save()
+                    val = requestsWS.range(printFilledRow).value
+                    print(val)
+                    print()
+                    
+                else:
+                    tableShow(df)
+                    # threading.Thread(target=tableShow(df)).start()
+            
+            elif 'Not Cleared - Not Registering' in Decision:
+                pass
     else:
         if Unreturned.empty:
             print('Sorry but there are no unreturned equipment. You will need to manually add return labels.')
             pass
             
         if staff == 0:
-            print("FEL Email: "+ style.CYAN+FEL_Email+style.RESET)
-            print('LG Email: ' + style.CYAN+LG_Email+style.RESET)
-            print(style.RED +'This Family has Outstanding Equipment'+style.RESET)
+            print("FEL Email: "+ FEL_Email)
+            print('LG Email: ' + LG_Email)
+            print('This Family has Outstanding Equipment')
         elif staff ==1:
-            print("Personal Email: "+ style.CYAN+FEL_Email+style.RESET)
-            print('Staff Email: ' + style.CYAN+str(LG_Email)+style.RESET)
-            print(style.RED +'This Staff member has Outstanding Equipment'+style.RESET)
+            print("Personal Email: "+ FEL_Email)
+            print('Staff Email: ' + str(LG_Email))
+            print('This Staff member has Outstanding Equipment')
         Unreturned_New = Unreturned[['AssetID', 'Dev_Cat', 'Model_Number','AssignDate','CW_Contact']].copy()
         print(Unreturned_New)
         print('\n')
@@ -611,14 +624,14 @@ def main_run(ticketID,switch_state):
                 print('Sorry but there are no unreturned equipment. You will need to manually add them.')
                 pass
             tableShow(df1)
-
+            # threading.Thread(target=tableShow(df)).start()
                 
         print()
         print("Return label requested: "+str(return_label_requested))
         if return_label_requested == 0:
-            print(style.RED +', '.join(list_b)+style.RESET)
+            print(', '.join(list_b))
             print()
-            print(style.RED +'\n'.join(list_c)+style.RESET)
+            print('\n'.join(list_c))
             if len(list_b) >1:
                 student_list= ",".join(list_b[:-1]) +"& "+list_b[-1]
                 deviceamount = 'devices'
@@ -638,14 +651,14 @@ def main_run(ticketID,switch_state):
                 uMADFormat = uMAD.format_map(Default(need = need,thatwerenot=thatwerenot,device=deviceamount,label=labelamount,email=LG_Email,student_name=student_list,asset=asset_list))
                 print('\n',uMADFormat)
                 if Label_Method_Decision == "Print Return Label at SCA":
-                    print(style.WHITE+'Choose "Shipping - Replacement PRL" as note to send.'+style.RESET)
+                    print('Choose "Shipping - Replacement PRL" as note to send.')
                     print('Also let Warehouse know!')
                     print(f"@Shipping\n{Contact}\nPrint at warehouse, include in box")
                 elif Label_Method_Decision == "Email Electronic Return Label":
-                    print(style.WHITE+'Choose "Shipping - Replacement ERL" as note to send.'+style.RESET)
+                    print('Choose "Shipping - Replacement ERL" as note to send.')
                 print('\n')
             else:
-                print(style.WHITE+'Choose "Shipping - Replacement ERL" as note to send.'+style.RESET)
+                print('Choose "Shipping - Replacement ERL" as note to send.')
         # except Exception as e:
         #     print(e)
         #     print('Issue with Outstanding DataFrame Creation')
@@ -655,5 +668,6 @@ def main_run(ticketID,switch_state):
 
 
 
-if __name__ == '__main__': 
-    main_run(365891)
+# if __name__ == '__main__':
+#     main_run(366534,0)
+

@@ -1,0 +1,14 @@
+__pycache__/
+_cache/
+VeritickAPP/doorKey.py
+***.log
+VeritickAPP/ask.py
+test.py
+VeritickAPP/test123.py
+output/
+auto_py_2_exe_config.json
+auto_py_2_exe_config3.json
+auto_py_2_exe_config2.json
+doorKey.py
+ex/
+html_gui_py39.code-workspace

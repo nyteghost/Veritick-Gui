@@ -2,43 +2,11 @@ from tkinter import *
 import customtkinter
 from pandastable import Table, TableModel, config
 
-#############################################################################################################################
-
-import os,sys
-import sqlalchemy as sa
-from sqlalchemy.engine import URL
-import pandas as pd
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from doorKey import config as cfg
-
-### SQL Connection Settings
-connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(cfg['database']['Server'])+';''Database=isolatedsafety;''UID='+(cfg['database']['UID'])+';''PWD='+(cfg['database']['PWD'])+';' 
-connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
-conn = sa.create_engine(connection_url)
-rawconn = conn.raw_connection()
-
-unreturned_query = f"EXEC [uspFamUnreturnedDevCheck] " + "147586"  # Checks Unreturned Equipment in SQL by STID
-Unreturned = pd.read_sql(unreturned_query , conn)    
-
-dframe = Unreturned
-
-#############################################################################################################################
-
-
-
-
-
-
-class tableShow(customtkinter.CTk):
+class tableShow(customtkinter.CTkToplevel):
     """Basic test frame for the table"""
     def __init__(self,dFrame, parent=None):
         super().__init__()
         
-        def copyTable(*args):
-            dFrame.to_clipboard(excel=True, sep=None, index=False, header=None)
-        
-    
-
         self.title('veriTable')
         window_width = 1920
         window_height = 600
@@ -63,8 +31,7 @@ class tableShow(customtkinter.CTk):
         pt.bind("<Control-c>", self.table.getSelectedRow())
         pt.show()
         
-        
-        
+    
         #set some options
         options = {'colheadercolor':'green','floatprecision': 5}
         config.apply_options(options, pt)
@@ -78,7 +45,7 @@ class tableShow(customtkinter.CTk):
         # print(f.winfo_width())
         # print(f.winfo_height())
         self.geometry(f'{window_width}x{f.winfo_height()+100}+{center_x}+{center_y}')
-        self.mainloop()
+        # self.mainloop()
 
 class MyTable(Table):
     """
@@ -110,5 +77,26 @@ class MyTable(Table):
         return
     
 
-if __name__ == '__main__':
-    tableShow(dframe)
+
+#############################################################################################################################
+# if __name__ == '__main__':
+#     import os,sys
+#     import sqlalchemy as sa
+#     from sqlalchemy.engine import URL
+#     import pandas as pd
+#     sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+#     from doorKey import config as cfg
+
+#     ### SQL Connection Settings
+#     connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(cfg['database']['Server'])+';''Database=isolatedsafety;''UID='+(cfg['database']['UID'])+';''PWD='+(cfg['database']['PWD'])+';' 
+#     connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+#     conn = sa.create_engine(connection_url)
+#     rawconn = conn.raw_connection()
+
+#     unreturned_query = f"EXEC [uspFamUnreturnedDevCheck] " + "147586"  # Checks Unreturned Equipment in SQL by STID
+#     Unreturned = pd.read_sql(unreturned_query , conn)    
+
+#     dframe = Unreturned
+#     tableShow(dframe)
+#############################################################################################################################
+

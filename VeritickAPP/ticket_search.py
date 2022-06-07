@@ -3,7 +3,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from connectpyse.time import time_entries_api
 from connectpyse.service import tickets_api
 from loguru import logger
-import better_exceptions; better_exceptions.hook()
+# import better_exceptions; better_exceptions.hook()
 import re
 from fuzzywuzzy import fuzz
 import sqlalchemy as sa
@@ -12,14 +12,31 @@ from sqlalchemy.engine import URL
 import pyodbc
 from doorKey import config
 
+logger.add("./ticket_search.log", backtrace=True, diagnose=True,rotation="12:00")
 ### SQL Connection Settings
-connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(config['database']['Server'])+';''Database=isolatedsafety;''UID='+(config['database']['UID'])+';''PWD='+(config['database']['PWD'])+';' 
-connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
-conn = sa.create_engine(connection_url)
-rawconn = conn.raw_connection()
+try:
+    connection_string = 'Driver={ODBC Driver 17 for SQL Server};''Server='+(config['database']['Server'])+';''Database=isolatedsafety;''UID='+(config['database']['UID'])+';''PWD='+(config['database']['PWD'])+';' 
+    connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+    conn = sa.create_engine(connection_url)
+except Exception as e:
+    print('F00Bar')
 
+try:
+    rawconn = conn.raw_connection()
+except exc.OperationalError as e:  
+        err_origin = str(e.orig)
+        # print(e.statement,"threw an error due to;\n", style.RED+(err_origin)+style.RESET)
+        # print(e.args[0])
+        qrc = re.search(r"\[([A-Za-z0-9_]+)\]", err_origin)
+        print(qrc.group(1))
+        if qrc.group(1)== "08001":
+            print('Can not connect to the database.')
+            logger.exception("Can not connect to the database.")
+            exit()
+except Exception as err:
+    logger.exception("Double User found")
 # Create Cursor
-raw_conn = rawconn.cursor()
+# raw_conn = rawconn.cursor()
 
 ### Connectwise Settings
 AUTH=config['cwAUTH']
@@ -187,8 +204,7 @@ def getShippingInfo(ticketID,Address,LG_Email):
     engineer_notes = getTickInfo(ticketID)
     if engineer_notes != False:
         return ticket_search(engineer_notes,Address,LG_Email)
-    else:
-        return False
+    return 'False'
 
 def testfunction():
     return ticket_search()
@@ -275,7 +291,6 @@ def autoStart(ticketID,debug=''): ## Used for Address-ReturnCheck script to find
 
 @logger.catch
 def getTickInfo(ticketID):
-    print()
     gte = time_entries_api.TimeEntriesAPI(url=cwURL, auth=AUTH)
     gte.conditions = f'chargeToId={ticketID}'
     gte.pageSize = 100
