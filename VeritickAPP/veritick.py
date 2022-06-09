@@ -5,13 +5,10 @@ import better_exceptions; better_exceptions.hook()
 import pandas as pd
 import numpy as np
 import getpass
-# from pandasgui import show
 import re,os,sys
 from doorKey import config
 from ticket_search import *
 from notes_for_fillin import *
-import tkinter as tk
-from tkinter import ttk
 from turtle import textinput,TurtleScreen
 import turtle
 from veriTableClass import tableShow
