@@ -17,6 +17,7 @@ import turtle
 from veriTableClass import tableShow
 import threading
 import queue
+from popUpBox import equipPopUp
 
 
 
@@ -71,7 +72,7 @@ def main_run(ticketID,switch_state):
     else:
         pass    
         
-    
+    noLabel=0
     staff = 0
     family_status_dict = {}
     STID = None
@@ -79,6 +80,7 @@ def main_run(ticketID,switch_state):
     Company = None
     Contact = None
     Equipment_Requested = None
+    Equipment_Replacement = None
     Asset_Number = None
     Ship_Method = None
     Reason_For_Return = ''
@@ -234,6 +236,7 @@ def main_run(ticketID,switch_state):
                         print('Equipment Request found.')
                         if Equipment_Requested == 'charger':
                             ERI = "3"
+                            Equipment_Replacement = 'charger'
                             Label_Method_Decision = ''
                         elif 'hotspot' in Equipment_Requested:
                                 print()
@@ -316,42 +319,60 @@ def main_run(ticketID,switch_state):
                                 if "headset" in Equipment_Requested:
                                     turtletext('Headset Equipment_Requested being requested. Please verify manually.')      
                 else:
-                    print('No device request information found.\nPlease make your selection below.')
-                    if staff == 0:
-                        Equipment_Requested = ["1) Replacement Student Kit", "2) Replacement Student Printer", "3) Charger"]
-                    elif staff ==1:
-                        Equipment_Requested = ["1) Replacement Staff Kit", "2) Replacement Staff Printer", "3) Charger"]
+                    noLabel=1
+                    s = equipPopUp('Equipment Requested',staff,'N',ERI_Included='N')
+                    s.start()
+                    ERI = s.getBtn1()
+                    RFRI = s.getBtn2()
+                    rlm = s.getBtn3()
+ 
+                    
+                    # if staff == 0:
+                    #     Equipment_Requested = ["1) Replacement Student Kit", "2) Replacement Student Printer", "3) Charger"]
+                    # elif staff ==1:
+                    #     Equipment_Requested = ["1) Replacement Staff Kit", "2) Replacement Staff Printer", "3) Charger"]
                     # print("\n".join(Equipment_Requested))
                     
                     
-                    ERI = turtletext('Equipment Requested',"\n".join(Equipment_Requested))
+                    # ERI = turtletext('Equipment Requested',"\n".join(Equipment_Requested))
                     # ERI = 'Please enter the label method requested as it reads exactly in the note.'
                     # rlm = input('Please enter the label method requested as it reads exactly in the note.')
                     
-                    rlm = turtletext("Label Requested",'Please enter the label method requested as it reads exactly in the note.')
-                    if rlm.strip() == "PNM":
+                    # rlm = turtletext("Label Requested",'Please enter the label method requested as it reads exactly in the note.')
+                    if rlm== "1":
                         Label_Method_Decision = "Print Return Label at SCA"
-                    elif rlm.strip() == "ERL":
+                    elif rlm == "2":
                         Label_Method_Decision = "Email Electronic Return Label"    
-                    elif rlm.strip() == "Email":
+                    elif rlm== "3":
                         Label_Method_Decision = "Email Electronic Return Label"   
-            
+
+                if noLabel!=1:
+                    if ERI != 3:
+                        s = equipPopUp('Equipment Requested',staff,ERI_Included=ERI)
+                        s.start()
+                        RFRI = s.getBtn3()
                 print()
                 if troubleshooting_notes:
                     print("Troubleshooting: "+troubleshooting_notes)
-                if ERI == 'x':
-                    pass   
-                elif ERI == "":
-                    pass
-                elif ERI == "1":
-                    if staff == 0:
-                        Equipment_Requested = "Replacement Student Kit"
-                    elif staff ==1:
-                        Equipment_Requested = "Replacement Staff Kit"
-                    equipment_reason_for_return = ["1) Display", "2) OS/MB", "3) Keyboard", "4) Camera", "5) Audio/Mic", "6) Battery", "7) Physical Damage"]
+                # if ERI == 'x':
+                #     pass   
+                # elif ERI == "":
+                #     pass
+                # elif ERI == "1":
+                #     if staff == 0:
+                #         Equipment_Requested = "Replacement Student Kit"
+                #     elif staff ==1:
+                #         Equipment_Requested = "Replacement Staff Kit"
+                    # equipment_reason_for_return = ["1) Display", "2) OS/MB", "3) Keyboard", "4) Camera", "5) Audio/Mic", "6) Battery", "7) Physical Damage"]
                     
 
-                    RFRI = turtletext("Equipment Reason for Return","\n".join(equipment_reason_for_return))
+                    # RFRI = turtletext("Equipment Reason for Return","\n".join(equipment_reason_for_return))
+                if ERI == "1":
+                    if staff == 0:
+                        Equipment_Replacement = "Replacement Student Kit"
+                    elif staff ==1:
+                        Equipment_Replacement = "Replacement Staff Kit"
+                        
                     if RFRI == "1":
                         Reason_For_Return = "Display Issue"
                     elif RFRI == "2":
@@ -367,20 +388,20 @@ def main_run(ticketID,switch_state):
                     elif RFRI == "7":
                         Reason_For_Return = "Physical Damage"
                 
-                elif ERI == "2" or "printer" in Equipment_Requested:
+                elif ERI == "2":
                     i=0
                     while i < 1: 
                         printCheckVariable = (Printer_Check['Device_Determination']).to_string(index=False)
                         if printCheckVariable == 'Cleared For Shipment':
                             if staff == 0:
-                                Equipment_Requested = "Replacement Student Printer"
+                                Equipment_Replacement = "Replacement Student Printer"
                             elif staff ==1:
-                                Equipment_Requested = "Replacement Student Printer"
-                            Printer_Reason_For_Return = ["1) Hardware", "2) Software"]
-                            print("Choose Return Reason: ")
-                            print("\n".join(Printer_Reason_For_Return))
+                                Equipment_Replacement = "Replacement Staff Printer"
+                            # Printer_Reason_For_Return = ["1) Hardware", "2) Software"]
+                            # print("Choose Return Reason: ")
+                            # print("\n".join(Printer_Reason_For_Return))
                             # RFRI = input()
-                            RFRI = turtletext("Printer Reason for Return","\n".join(Printer_Reason_For_Return))
+                            # RFRI = turtletext("Printer Reason for Return","\n".join(Printer_Reason_For_Return))
                             if RFRI == "1":
                                 Reason_For_Return = "Printer Hardware Issue"
                             elif RFRI == "2":
@@ -397,7 +418,7 @@ def main_run(ticketID,switch_state):
                         else:
                             print(printCheckVariable)
                 
-                elif ERI == "3" or "charger" in Equipment_Requested:
+                elif ERI == "3":
                     Charger_Query = f"EXEC uspFamCurrentAssignByOrgID " + STID
                     Charger_Lookup = pd.read_sql(Charger_Query, conn)
                     Charger_Lookup = Charger_Lookup.loc[Charger_Lookup['STD/STF ID'].str.contains(STID)]
@@ -408,41 +429,44 @@ def main_run(ticketID,switch_state):
                         if len(Charger_Lookup) == 1:
                             Charger_Model_Number = Charger_Lookup["Model_Number"].loc[0]
                             if Charger_Model_Number == "Chromebook 3400":
-                                Equipment_Requested = "Dell 3400 CB Charger"
+                                Equipment_Replacement = "Dell 3400 CB Charger"
                             elif Charger_Model_Number == "Chromebook 5400":
-                                Equipment_Requested = "Dell 5400 CB Charger"
+                                Equipment_Replacement= "Dell 5400 CB Charger"
                             elif Charger_Model_Number == "14e Chromebook":
-                                Equipment_Requested = "Lenovo CB Charger"
+                                Equipment_Replacement = "Lenovo CB Charger"
                             elif Charger_Model_Number == "E550" or "E560" or "E570" or "T440" or "E580":
-                                Equipment_Requested = "Lenovo E-Series Charger"
+                                Equipment_Replacement = "Lenovo E-Series Charger"
                         elif len(Charger_Lookup) > 1:
                             print("\nThis student has Multiple Laptops. Please select the device they need a charger for.")
                             for i in range(len(Charger_Lookup)):
                                 Charger_Model_Number = Charger_Lookup["Model_Number"].loc[i]
                                 if Charger_Model_Number == "Chromebook 3400":
-                                    Equipment_Requested = "Dell 3400 CB Charger"
+                                    Equipment_Replacement= "Dell 3400 CB Charger"
                                 elif Charger_Model_Number == "Chromebook 5400":
-                                    Equipment_Requested = "Dell 5400 CB Charger"
+                                    Equipment_Replacement = "Dell 5400 CB Charger"
                                 elif Charger_Model_Number == "14e Chromebook":
-                                    Equipment_Requested = "Lenovo CB Charger"
+                                    Equipment_Replacement = "Lenovo CB Charger"
                                 elif Charger_Model_Number == "E550" or "E560" or "E570" or "T440" or "E580":
-                                    Equipment_Requested = "Lenovo E-Series Charger"
-                                model_list.append(Equipment_Requested)
+                                    Equipment_Replacement= "Lenovo E-Series Charger"
+                                model_list.append(Equipment_Replacement)
                                 Reason_For_Return = ''
                             for model in model_list:
                                 index_count = index_count+1
                                 print(index_count , ") " + model)
                             Model_Choice = turtletext("Model Choice","")
+                print(Contact)
+                print("Label Method: "+str(rlm)+" "+Label_Method_Decision)
+                print("Print Equipment Replacement: "+str(ERI)+ " "+Equipment_Replacement)
+                print("Replacement Reason: "+str(RFRI)+" "+Reason_For_Return)
                
-
             
                 data = {
                     'Company': ''
                     ,'Contact' : Contact
-                    ,'Equipment_Requested' : Equipment_Requested
+                    ,'Equipment_Requested' : Equipment_Replacement
                     ,'Asset_Number' : ''
                     ,'Ship_Method' : ''
-                    ,'Reason_For_Return' : [Reason_For_Return]
+                    ,'Reason_For_Return' : Reason_For_Return
                     ,'Label_For_Returns' : Label_Method_Decision
                     ,'Street' : ''
                     ,'Street2' : ''
@@ -509,7 +533,8 @@ def main_run(ticketID,switch_state):
                     print()
                     
                 else:
-                    tableShow(df)
+                    showDF = tableShow(df)
+                    showDF.start()
                     # threading.Thread(target=tableShow(df)).start()
             
             elif 'Not Cleared - Not Registering' in Decision:
@@ -623,7 +648,8 @@ def main_run(ticketID,switch_state):
             if df1.empty:
                 print('Sorry but there are no unreturned equipment. You will need to manually add them.')
                 pass
-            tableShow(df1)
+            showDF = tableShow(df)
+            showDF.start()
             # threading.Thread(target=tableShow(df)).start()
                 
         print()

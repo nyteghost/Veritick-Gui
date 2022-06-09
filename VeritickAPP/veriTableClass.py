@@ -47,6 +47,12 @@ class tableShow(customtkinter.CTkToplevel):
         self.geometry(f'{window_width}x{f.winfo_height()+100}+{center_x}+{center_y}')
         # self.mainloop()
 
+    def start(self):
+        try:
+            self.wait_window()
+        except Exception as e:
+            print('yeye')
+
 class MyTable(Table):
     """
       Custom table class inherits from Table.
