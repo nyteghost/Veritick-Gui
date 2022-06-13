@@ -2,6 +2,7 @@ class Default(dict):
     def __missing__(self, key):
         return key
 
+
 uMAD = """
 Thank you for contacting SCA regarding your GCA equipment.
 
@@ -40,7 +41,7 @@ Please note that a cell phone bill is not an acceptable Proof of Residency becau
 
 If you do not have a Proof of Residency document in your name, an Affidavit of Residence Form may be submitted, completed by you and the home owner/leasee. This form must be notarized.
 
-If you do not have any of the above proof of residency documentation, please contact addresschanges@georgiacyber.org, 470-400-7887 
+If you do not have any of the above proof of residency documentation, please contact addresschanges@georgiacyber.org, 470-400-788 
 
 Best, 
  
