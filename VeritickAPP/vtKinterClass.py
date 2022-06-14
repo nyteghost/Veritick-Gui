@@ -1,13 +1,13 @@
 from tkinter import *
+import tkinter as tk
 import customtkinter
 import sys
 import os
 import threading
 import queue
-from concurrent.futures import process
 from loguru import logger
 from veritick import main_run
-
+from textbox import TextFrame
 
 logger.add("./logs/vtKinterClass.log", backtrace=True, diagnose=True, rotation="12:00")
 
@@ -26,10 +26,10 @@ img_file = img_dir + "/sca-logo.jpg"
 
 
 class vtKinterClass(customtkinter.CTk):
-    def __init__(self):
+    def __init__(self, update=""):
         super().__init__()
         self.title("VeriTick")
-
+        self.update = update
         # Main Window
         self.geometry(f"{1200}x{1070}")
 
@@ -39,22 +39,24 @@ class vtKinterClass(customtkinter.CTk):
         )
         self.MainFrame.pack(pady=20, expand=True)
 
+        # CMD Redirect Frame
         self.text_frame = customtkinter.CTkFrame(
             self.MainFrame,
             corner_radius=10,
         )
         self.text_frame.grid(row=2, column=0, padx=10, pady=10)
 
-        # CMD Redirect Frame
-        self.my_text = Text(
-            self.text_frame,
-            height=600,
-            width=67,
-            wrap=WORD,
-            bd=0,
-            bg="#292929",
-            fg="silver",
-        )
+        # self.my_text = Text(
+        #     self.text_frame,
+        #     height=600,
+        #     width=67,
+        #     wrap=WORD,
+        #     bd=0,
+        #     bg="#292929",
+        #     fg="silver",
+        # )
+
+        self.my_text = TextFrame(self.MainFrame, self.text_frame)
 
         # Ticket Entry Section
         self.ticketEntryFrame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
@@ -88,15 +90,16 @@ class vtKinterClass(customtkinter.CTk):
             offvalue="off",
             bg_color="#2A2D2E",
         )
+
         self.switch_1.deselect()
         self.switch_1.pack()
 
-        self.my_text.pack(fill="both", expand=True)
+        # self.my_text.pack(fill="both", expand=True)
 
-        def redirector(inputStr):
-            self.my_text.insert(INSERT, inputStr)
+        # def redirector(inputStr):
+        #     self.my_text.insert(INSERT, inputStr)
 
-        sys.stdout.write = redirector
+        # sys.stdout.write = redirector
 
     def veritick_on_press(self):
         value = self.ticketEntry.get().strip()
@@ -109,7 +112,7 @@ class vtKinterClass(customtkinter.CTk):
             main_run(value, switch_state)
 
     def switch_event(self):
-        self.my_text.delete("1.0", "end")
+        self.my_text.deleteTF("1.0", "end")
         if self.switch_1.get() == "on":
             switch_state = 1
         else:
@@ -119,8 +122,10 @@ class vtKinterClass(customtkinter.CTk):
     def start(self):
         self.mainloop()
 
+    # def updateTextBox(self):
+    #     self.my_text.insert(tk.END, self.update)
 
-# if __name__ == '__main__':
+    # if __name__ == '__main__':
 #     app = vtKinterClass()
 #     app.mainloop()
 # try:

@@ -11,7 +11,7 @@ from turtle import textinput
 import turtle
 from veriTableClass import tableShow
 from popUpBox import equipPopUp
-
+from assetLocation import errorBox, AssetLoc
 
 # Settings
 better_exceptions.MAX_LENGTH = None
@@ -20,7 +20,8 @@ logger.add("./logs/veritick.log", backtrace=True, diagnose=True, rotation="12:00
 debug = 0
 
 
-def turtletext(boxName, text):
+def turtletext(text):
+    boxName = "Box Creation"
     sc = turtle.Screen()
     sc.bgcolor = (42, 45, 46)
     sc.setup(0, 0)
@@ -29,6 +30,7 @@ def turtletext(boxName, text):
     if result == "":
         exit()
     return result
+
 
 
 # @logger.catch
@@ -59,8 +61,6 @@ def main_run(ticketID, switch_state):
     elif update_master_update == "N" or update_master_update == "n":
         update_master_updater = 0
         print("Using veriTable for copy and paste ability.")
-    elif update_master_update == None:
-        exit()
     else:
         pass
 
@@ -99,7 +99,7 @@ def main_run(ticketID, switch_state):
     #     pass
 
     STID, OTN, return_label_requested = autoStart(int(ticketID))
-    if STID[0].isdigit() == False:
+    if not STID[0].isdigit():
         findStaffID_query = "EXEC [staffUserNameToStaffID] " + str(
             STID
         )  # Checks Unreturned Equipment in SQL by STID
@@ -111,13 +111,18 @@ def main_run(ticketID, switch_state):
         staff = 1
     elif STID == "":
         pass
-    STID = re.sub("[^0-9]", "", STID)
+    STID = re.sub("\D", "", STID)
     print("Performing Verification Check")
 
+    p1 = AssetLoc(STID)
+    cacheList = p1.findNone()
+    if cacheList:
+        p2 = errorBox('Asset Location', "Asset Location", cacheList)
+        p2.start()
+
     # Running Unreturned Query to SQL to check if any unreturned equipment
-    unreturned_query = (
-        "EXEC [uspFamUnreturnedDevCheck] " + STID
-    )  # Checks Unreturned Equipment in SQL by STID
+    unreturned_query = ("EXEC [uspFamUnreturnedDevCheck] " + STID)
+    # Checks Unreturned Equipment in SQL by STID
     Unreturned = pd.read_sql(unreturned_query, conn)
 
     # Family lookup to retrieve some information needed
@@ -145,7 +150,8 @@ def main_run(ticketID, switch_state):
         qrc = re.search(r"\[([A-Za-z0-9_]+)\]", err_origin)
         if qrc.group(1) == "21000":
             print(
-                "Subquery returned more than 1 value. \nThis is not permitted when the subquery follows =, !=, <, <= , >, >= or when the subquery is used as an expression."
+                "Subquery returned more than 1 value. \nThis is not permitted when the subquery follows =, !=, <, "
+                "<= , >, >= or when the subquery is used as an expression. "
             )
             print(
                 "This is usually caused by a user having a ID and another user having the same id but with a Leading 0."
@@ -178,7 +184,8 @@ def main_run(ticketID, switch_state):
                 Contact = ContactDF.loc[0, "CW_Contact"]
             except Exception as e:
                 print(
-                    "There was a keyError searching for CW_Contact. This is caused by a entering something other than a Student ID. Please verify the Student ID used. "
+                    "There was a keyError searching for CW_Contact. This is caused by a entering something other than "
+                    "a Student ID. Please verify the Student ID used. "
                 )
                 logger.exception("Key Error found when searching for CW_Contact")
                 pass
@@ -210,6 +217,10 @@ def main_run(ticketID, switch_state):
 
     Fam_Youngest_Contact = Fam_Lookup["CW_Contact"].loc[0]
     print("Return Label Requested requested " + str(return_label_requested))
+
+
+
+
     if Unreturned.empty and return_label_requested != 1:  # or Check == "Yes":
         Decision = (Kit_Check["Device_Determination"]).to_string(index=False)
         # if staff == 1:
@@ -221,19 +232,19 @@ def main_run(ticketID, switch_state):
         #         Fam_Lookup["EnrollmentStatus"].str.contains("ACTIVE")
         #     ]
 
-        if LG_Street2 == None:
+        if LG_Street2 is None:
             Address = LG_Street1 + " " + LG_City + " " + LG_State + " " + LG_Zip
         else:
             Address = (
-                LG_Street1
-                + " "
-                + LG_Street2
-                + " "
-                + LG_City
-                + " "
-                + LG_State
-                + " "
-                + LG_Zip
+                    LG_Street1
+                    + " "
+                    + LG_Street2
+                    + " "
+                    + LG_City
+                    + " "
+                    + LG_State
+                    + " "
+                    + LG_Zip
             )
 
         print("Decision:", Decision)
@@ -253,7 +264,7 @@ def main_run(ticketID, switch_state):
             if getShipFunc != "False":
                 print("getShipFunc not False")
                 Equipment_Requested = getShipFunc.find_device()
-                if Equipment_Requested != None:
+                if Equipment_Requested is not None:
                     print("Equipment Request found.")
                     if Equipment_Requested == "charger":
                         ERI = "3"
@@ -277,7 +288,7 @@ def main_run(ticketID, switch_state):
                         Label_Method_Decision = getShipFunc.find_return_label()
                         if Label_Method_Decision == "Both":
                             turtletext(
-                                "Need to send both  Electric Return Label, and include it box.\nPlease press enter to continue."
+                                "Need to send both Electric Return Label, and include it box."
                             )
                             Label_Method_Decision = "Email Electronic Return Label"
                         (
@@ -347,9 +358,7 @@ def main_run(ticketID, switch_state):
                             print("Database Email: " + str(LG_Email))
                             print("Ticket Email: " + str(ticket_email))
                         else:
-                            turtletext(
-                                "Email Address is below the  threshold. Please verify email."
-                            )
+                            turtletext("Email Address is below the  threshold. Please verify email.")
                             print(
                                 "Email information "
                                 + str(email_Ratio)
@@ -367,9 +376,7 @@ def main_run(ticketID, switch_state):
                             elif "charger" in Equipment_Requested:
                                 ERI = "3"
                             elif "headset" in Equipment_Requested:
-                                turtletext(
-                                    "Headset is being requested. Please verify manually."
-                                )
+                                turtletext("Headset is being requested. Please verify manually.")
 
                         elif staff == 1:
                             if "windows" in Equipment_Requested:
@@ -471,15 +478,15 @@ def main_run(ticketID, switch_state):
                             Reason_For_Return = "Printer Software Issue"
                         i += 1
                     elif (
-                        printCheckVariable
-                        == "Not Cleared - Not Youngest Enrolled Student in FID"
+                            printCheckVariable
+                            == "Not Cleared - Not Youngest Enrolled Student in FID"
                     ):
                         print("Not youngest in family. Searching for youngest.")
                         Contact = Fam_Youngest_Contact
                         print(Contact, "is the youngest in the family.")
                         STID = re.sub("\D", "", Contact)
                         shipmentClearanceQuery = (
-                            "EXEC uspShipmentClearanceCheck" + " " + str(STID)
+                                "EXEC uspShipmentClearanceCheck" + " " + str(STID)
                         )
                         shipmentClearance = pd.read_sql(shipmentClearanceQuery, conn)
                         Printer_Check = shipmentClearance.loc[
@@ -509,11 +516,11 @@ def main_run(ticketID, switch_state):
                         elif Charger_Model_Number == "14e Chromebook":
                             Equipment_Replacement = "Lenovo CB Charger"
                         elif (
-                            Charger_Model_Number == "E550"
-                            or "E560"
-                            or "E570"
-                            or "T440"
-                            or "E580"
+                                Charger_Model_Number == "E550"
+                                or "E560"
+                                or "E570"
+                                or "T440"
+                                or "E580"
                         ):
                             Equipment_Replacement = "Lenovo E-Series Charger"
                     elif len(Charger_Lookup) > 1:
@@ -529,19 +536,20 @@ def main_run(ticketID, switch_state):
                             elif Charger_Model_Number == "14e Chromebook":
                                 Equipment_Replacement = "Lenovo CB Charger"
                             elif (
-                                Charger_Model_Number == "E550"
-                                or "E560"
-                                or "E570"
-                                or "T440"
-                                or "E580"
+                                    Charger_Model_Number == "E550"
+                                    or "E560"
+                                    or "E570"
+                                    or "T440"
+                                    or "E580"
                             ):
                                 Equipment_Replacement = "Lenovo E-Series Charger"
                             model_list.append(Equipment_Replacement)
                             Reason_For_Return = ""
                         for model in model_list:
-                            index_count = index_count + 1
+                            index_count = 0
+                            index_count += 1
                             print(index_count, ") " + model)
-                        Model_Choice = turtletext("Model Choice", "")
+                        # Model_Choice = turtletext("Model Choice")
             print(Contact)
             print("Label Method: " + str(rlm) + " " + Label_Method_Decision)
             print(
@@ -593,9 +601,9 @@ def main_run(ticketID, switch_state):
 
             if update_master_updater == 1:
                 x = None
-                while x == None:
+                while x is None:
                     for row in range(1, 50):
-                        if x == None:
+                        if x is None:
                             for col in range(2, 3):
                                 if requestsWS.range((row, col)).value == None:
                                     print()
@@ -667,8 +675,8 @@ def main_run(ticketID, switch_state):
         list_c = []
         new_list_b = []
         for (
-            index,
-            row,
+                index,
+                row,
         ) in Unreturned.T.iteritems():  # iterates over the unreturned equipment
             list_b.append(row.FERPA_Contact)
             list_c.append(
@@ -726,7 +734,6 @@ def main_run(ticketID, switch_state):
                             ]
 
             # CHANGES THE RESULTS OF UNRETURNED INTO A LIST. THEN FROM LIST TO NUMPY ARRAY WHICH IS THEN APPENDED TO A DATAFRAME.
-            # values = [row.CW_Contact, row.Dev_Cat,'Normal Return','Email Electronic Return Label']
             values = np.array(values)
             values = np.where(values == "Hotspot", "GCA Hotspot", values)
             if staff == 0:
@@ -742,7 +749,7 @@ def main_run(ticketID, switch_state):
         df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
         for index, row in df1.iterrows():
             if row["Reason For Return"] == "Withdrawn":
-                if row["IS_DUPLICATED"] == True:
+                if row["IS_DUPLICATED"]:
                     df1.at[index, "Equipment Being Returned"] = "ES - ALL"
                     df1 = df1.drop_duplicates(
                         subset=["Contact", "Reason For Return"], keep="last"
@@ -752,9 +759,9 @@ def main_run(ticketID, switch_state):
 
         if update_master_updater == 1:
             x = None
-            while x == None:
+            while x is None:
                 for row in range(1, 50):
-                    if x == None:
+                    if x is None:
                         for col in range(2, 3):
                             if returnlabelsWS.range((row, col)).value == None:
                                 print(
@@ -811,7 +818,7 @@ def main_run(ticketID, switch_state):
                 thatwerenot = "that was not returned after it was"
             asset_list = "\n".join(list_c)
 
-            if withdrawn != True:
+            if not withdrawn:
                 uMADFormat = uMAD.format_map(
                     Default(
                         need=need,
@@ -837,7 +844,6 @@ def main_run(ticketID, switch_state):
         #     print(e)
         #     print('Issue with Outstanding DataFrame Creation')
     print("Done")
-
 
 # if __name__ == '__main__':
 #     main_run(366534,0)
