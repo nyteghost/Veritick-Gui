@@ -7,7 +7,7 @@ import queue
 from concurrent.futures import process
 from loguru import logger
 from veritick import main_run
-process.__name__
+
 
 logger.add("./logs/vtKinterClass.log", backtrace=True, diagnose=True, rotation="12:00")
 
@@ -22,7 +22,7 @@ def resource_path(relative_path):
 
 img_dir = resource_path("images")
 
-img_file = img_dir + "./sca-logo.jpg"
+img_file = img_dir + "/sca-logo.jpg"
 
 
 class vtKinterClass(customtkinter.CTk):
