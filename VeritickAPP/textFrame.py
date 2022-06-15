@@ -1,8 +1,18 @@
 import customtkinter
 from tkinter import *
+import tkinter as tk
 import sys
+import veriLog
+from loguru import logger
+import better_exceptions
 
 
+better_exceptions.hook()
+better_exceptions.MAX_LENGTH = None
+logger.critical('textBox')
+
+
+@logger.catch
 class TextFrame:
     def __init__(self, root, frame):
         self.root = root
@@ -29,3 +39,6 @@ class TextFrame:
 
     def deleteTF(self, param, param1):
         self.my_text.delete(param, param1)
+
+    def updateTextBox(self, update):
+        self.my_text.insert(tk.END, update)

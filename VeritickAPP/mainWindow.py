@@ -4,12 +4,18 @@ import customtkinter
 import sys
 import os
 import threading
-import queue
-from loguru import logger
 from veritick import main_run
-from textbox import TextFrame
+from textFrame import TextFrame
+import asyncio
+import queue
+import random
+import veriLog
+from loguru import logger
+import better_exceptions
 
-logger.add("./logs/vtKinterClass.log", backtrace=True, diagnose=True, rotation="12:00")
+better_exceptions.hook()
+better_exceptions.MAX_LENGTH = None
+logger.critical('mainWindow')
 
 q = queue.Queue()
 
@@ -25,6 +31,35 @@ img_dir = resource_path("images")
 img_file = img_dir + "/sca-logo.jpg"
 
 
+@logger.catch
+class AsyncioThread(threading.Thread):
+    def __init__(self, the_queue, max_data):
+        self.asyncio_loop = asyncio.get_event_loop()
+        self.the_queue = the_queue
+        self.max_data = max_data
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self.asyncio_loop.run_until_complete(self.do_data())
+
+    async def do_data(self):
+        """ Creating and starting 'maxData' asyncio-tasks. """
+        tasks = [
+            self.create_dummy_data(key)
+            for key in range(self.max_data)
+        ]
+        await asyncio.wait(tasks)
+
+    async def create_dummy_data(self, key):
+        """ Create data and store it in the queue. """
+        sec = random.randint(1, 10)
+        data = '{}:{}'.format(key, random.random())
+        await asyncio.sleep(sec)
+
+        self.the_queue.put((key, data))
+
+
+@logger.catch
 class vtKinterClass(customtkinter.CTk):
     def __init__(self, update=""):
         super().__init__()
@@ -122,8 +157,7 @@ class vtKinterClass(customtkinter.CTk):
     def start(self):
         self.mainloop()
 
-    # def updateTextBox(self):
-    #     self.my_text.insert(tk.END, self.update)
+
 
     # if __name__ == '__main__':
 #     app = vtKinterClass()

@@ -1,9 +1,13 @@
 from tkinter import *
 import customtkinter
 from pandastable import Table, config
+import veriLog
 from loguru import logger
+import better_exceptions
 
-logger.add("./logs/veriTableClass.log", backtrace=True, diagnose=True, rotation="12:00")
+better_exceptions.hook()
+better_exceptions.MAX_LENGTH = None
+logger.critical('veriTableClass')
 
 
 class tableShow(customtkinter.CTkToplevel):

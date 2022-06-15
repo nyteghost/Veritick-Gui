@@ -1,14 +1,16 @@
 import tkinter
 import customtkinter
 import better_exceptions
+import veriLog
 from loguru import logger
 
 # Settings
 better_exceptions.hook()
 better_exceptions.MAX_LENGTH = None
-logger.add("./logs/popUpBox.log", backtrace=True, diagnose=True, rotation="12:00")
+logger.critical('popUpBox')
 
 
+@logger.catch
 class equipPopUp(customtkinter.CTkToplevel):
     def __init__(self, titleName, staff, labelFound="", ERI_Included=""):
         super().__init__()

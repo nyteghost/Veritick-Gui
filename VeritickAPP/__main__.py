@@ -1,9 +1,11 @@
 import os
-from vtKinterClass import vtKinterClass
+from mainWindow import vtKinterClass
 import threading
 import better_exceptions
+import veriLog
 from loguru import logger
 
+import sys
 better_exceptions.hook()
 better_exceptions.MAX_LENGTH = None
 
@@ -14,7 +16,8 @@ isExist = os.path.exists(path)
 if not isExist:
     os.makedirs(path)
 
-logger.add("./logs/__main__.log", backtrace=True, diagnose=True, rotation="12:00")
+
+logger.critical('__main__')
 
 
 myWindow = vtKinterClass()

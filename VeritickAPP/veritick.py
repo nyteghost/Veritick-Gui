@@ -1,22 +1,24 @@
-from loguru import logger
 import xlwings as xw
-import better_exceptions
 import pandas as pd
 import numpy as np
 import getpass
-import re
 from ticket_search import *
 from notes_for_fillin import *
 from turtle import textinput
 import turtle
-from veriTableClass import tableShow
-from popUpBox import equipPopUp
-from assetLocation import errorBox, AssetLoc
+from veriTableWindow import tableShow
+from shippingPreferenceWindow import equipPopUp
+from errorBox import errorBox, AssetLoc
+import better_exceptions
+import veriLog
+from loguru import logger
+import re
 
 # Settings
 better_exceptions.MAX_LENGTH = None
 better_exceptions.hook()
-logger.add("./logs/veritick.log", backtrace=True, diagnose=True, rotation="12:00")
+logger.critical('veritick')
+
 debug = 0
 
 
@@ -32,11 +34,12 @@ def turtletext(text):
     return result
 
 
-
-# @logger.catch
+@logger.catch
 def main_run(ticketID, switch_state):
     print(ticketID)
     print()
+
+
     update_master_update = None
     if switch_state == 1:
         update_master_update = "Y"

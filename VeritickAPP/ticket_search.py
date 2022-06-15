@@ -11,10 +11,14 @@ from sqlalchemy import exc
 from sqlalchemy.engine import URL
 import pyodbc
 from doorKey import config
-
+import veriLog
+from loguru import logger
 
 better_exceptions.hook()
-logger.add("./logs/ticket_search.log", backtrace=True, diagnose=True, rotation="12:00")
+better_exceptions.MAX_LENGTH = None
+logger.critical('ticket_search')
+
+
 # SQL Connection Settings
 try:
     connection_string = (
@@ -28,11 +32,7 @@ try:
         "mssql+pyodbc", query={"odbc_connect": connection_string}
     )
     conn = sa.create_engine(connection_url)
-except Exception as e:
-    print("F00Bar")
 
-try:
-    rawconn = conn.raw_connection()
 except exc.OperationalError as e:
     err_origin = str(e.orig)
     # print(e.statement,"threw an error due to;\n", style.RED+(err_origin)+style.RESET)
@@ -42,11 +42,7 @@ except exc.OperationalError as e:
     if qrc.group(1) == "08001":
         print("Can not connect to the database.")
         logger.exception("Can not connect to the database.")
-        exit()
-except Exception as err:
-    logger.exception("Double User found")
-# Create Cursor
-# raw_conn = rawconn.cursor()
+
 
 # Connectwise Settings
 AUTH = config["cwAUTH"]

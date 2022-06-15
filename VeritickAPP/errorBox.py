@@ -4,6 +4,13 @@ import customtkinter
 import tkinter as tk
 from tkinter import Text
 from ticket_search import conn
+import veriLog
+from loguru import logger
+import better_exceptions
+
+better_exceptions.hook()
+better_exceptions.MAX_LENGTH = None
+logger.critical('assetLocation')
 
 
 def make_config(assetid):
@@ -16,6 +23,7 @@ def assLocJSON(assJSON):
     return assetLocation
 
 
+@logger.catch
 class errorBox(customtkinter.CTkToplevel):
     def __init__(self, titleName, labeltext, populate):
         super().__init__()
@@ -45,14 +53,17 @@ class errorBox(customtkinter.CTkToplevel):
         # Create an Exit button.
         b1 = customtkinter.CTkButton(self, text="Exit", command=self.destroy)
 
+        # Pack the objects
         lbl.pack()
         textbox.pack()
         b1.pack()
 
+        # Creates text in the text box from list
         for i in self.populate:
             textbox.insert(tk.END, i+'\n')
         textbox.config(state='disabled')
 
+    # Start the popUp
     def start(self):
         try:
             self.wait_window()
@@ -60,6 +71,7 @@ class errorBox(customtkinter.CTkToplevel):
             print(e)
 
 
+@logger.catch
 class AssetLoc:
     def __init__(self, stid):
         self.stid = stid
