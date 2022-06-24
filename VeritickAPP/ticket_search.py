@@ -327,7 +327,9 @@ def getTickInfo(ticketID):
             "Return Label Method" in ticket_type
             or "Student ID" in ticket_type
             or "Device type" in ticket_type
-            or "charger in ticket_type"
+            or "charger" in ticket_type
         ):
             return i
+        else:
+            pass
     return False

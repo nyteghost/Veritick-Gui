@@ -39,8 +39,6 @@ def main_run(ticketID, switch_state):
     print(ticketID)
     print()
 
-
-    update_master_update = None
     if switch_state == 1:
         update_master_update = "Y"
     else:
@@ -69,6 +67,9 @@ def main_run(ticketID, switch_state):
 
     noLabel = 0
     staff = 0
+    ERI = 0
+    RFRI = 0
+    rlm = 0
     family_status_dict = {}
     STID = None
     OTN = None
@@ -185,7 +186,7 @@ def main_run(ticketID, switch_state):
             ContactDF = ContactDF.reset_index(drop=True)
             try:
                 Contact = ContactDF.loc[0, "CW_Contact"]
-            except Exception as e:
+            except KeyError:
                 print(
                     "There was a keyError searching for CW_Contact. This is caused by a entering something other than "
                     "a Student ID. Please verify the Student ID used. "
@@ -221,9 +222,6 @@ def main_run(ticketID, switch_state):
     Fam_Youngest_Contact = Fam_Lookup["CW_Contact"].loc[0]
     print("Return Label Requested requested " + str(return_label_requested))
 
-
-
-
     if Unreturned.empty and return_label_requested != 1:  # or Check == "Yes":
         Decision = (Kit_Check["Device_Determination"]).to_string(index=False)
         # if staff == 1:
@@ -238,20 +236,11 @@ def main_run(ticketID, switch_state):
         if LG_Street2 is None:
             Address = LG_Street1 + " " + LG_City + " " + LG_State + " " + LG_Zip
         else:
-            Address = (
-                    LG_Street1
-                    + " "
-                    + LG_Street2
-                    + " "
-                    + LG_City
-                    + " "
-                    + LG_State
-                    + " "
-                    + LG_Zip
-            )
+            Address = (LG_Street1 + " " + LG_Street2 + " " + LG_City + " " + LG_State + " " + LG_Zip)
 
         print("Decision:", Decision)
 
+        # if Decision != "Cleared For Shipment":
         if Decision == "Cleared For Shipment":
             print(Decision)
             # Does Address provided match Contact, if not, list together to compare.
@@ -289,6 +278,8 @@ def main_run(ticketID, switch_state):
                     else:
                         troubleshooting_notes = getShipFunc.find_troubleshooting()
                         Label_Method_Decision = getShipFunc.find_return_label()
+                        rlm = Label_Method_Decision
+
                         if Label_Method_Decision == "Both":
                             turtletext(
                                 "Need to send both Electric Return Label, and include it box."
@@ -390,27 +381,17 @@ def main_run(ticketID, switch_state):
                                 ERI = "3"
                             if "headset" in Equipment_Requested:
                                 turtletext(
-                                    "Headset Equipment_Requested being requested. Please verify manually."
+                                    "Headset is being requested. Please verify manually."
                                 )
             else:
+                print("getShip is False")
                 noLabel = 1
-                s = equipPopUp("Equipment Requested", staff, "N", ERI_Included="N")
+                s = equipPopUp("Equipment Requested", staff, "N", included="N")
                 s.start()
                 ERI = s.getBtn1()
                 RFRI = s.getBtn2()
                 rlm = s.getBtn3()
 
-                # if staff == 0:
-                #     Equipment_Requested = ["1) Replacement Student Kit", "2) Replacement Student Printer", "3) Charger"]
-                # elif staff ==1:
-                #     Equipment_Requested = ["1) Replacement Staff Kit", "2) Replacement Staff Printer", "3) Charger"]
-                # print("\n".join(Equipment_Requested))
-
-                # ERI = turtletext('Equipment Requested',"\n".join(Equipment_Requested))
-                # ERI = 'Please enter the label method requested as it reads exactly in the note.'
-                # rlm = input('Please enter the label method requested as it reads exactly in the note.')
-
-                # rlm = turtletext("Label Requested",'Please enter the label method requested as it reads exactly in the note.')
                 if rlm == "1":
                     Label_Method_Decision = "Print Return Label at SCA"
                 elif rlm == "2":
@@ -419,10 +400,10 @@ def main_run(ticketID, switch_state):
                     Label_Method_Decision = "Email Electronic Return Label"
 
             if noLabel != 1:
-                if ERI != 3:
-                    s = equipPopUp("Equipment Requested", staff, ERI_Included=ERI)
+                if RFRI == 0:
+                    s = equipPopUp("Equipment Requested", staff, included="RFRI")
                     s.start()
-                    RFRI = s.getBtn3()
+                    RFRI = s.getBtn2()
             print()
             if troubleshooting_notes:
                 print("Troubleshooting: " + troubleshooting_notes)

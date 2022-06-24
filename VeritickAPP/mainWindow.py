@@ -66,7 +66,7 @@ class vtKinterClass(customtkinter.CTk):
         self.title("VeriTick")
         self.update = update
         # Main Window
-        self.geometry(f"{1200}x{1070}")
+        self.geometry(f"{1200}x{1080}")
 
         # Main Frame
         self.MainFrame = customtkinter.CTkFrame(

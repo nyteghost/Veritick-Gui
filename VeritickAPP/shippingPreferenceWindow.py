@@ -12,14 +12,20 @@ logger.critical('popUpBox')
 
 @logger.catch
 class equipPopUp(customtkinter.CTkToplevel):
-    def __init__(self, titleName, staff, labelFound="", ERI_Included=""):
+    def __init__(self, titleName, staff, labelFound="", included=""):
         super().__init__()
+        self.rlm = None
+        self.RFRI = None
+        self.ERI = None
+        self.label_radio_group3 = None
+        self.label_radio_group2 = None
+        self.my_button = None
         self.rfrBTNList = []
         self.printBTNList = []
 
         self.labelFound = labelFound
         self.staff = staff
-        self.ERI_Included = ERI_Included
+        self.included = included
 
         if self.staff == 0:
             self.status = "Student"
@@ -79,11 +85,11 @@ class equipPopUp(customtkinter.CTkToplevel):
                 )
                 self.radio_button.grid(row=x, column=1, sticky="nw")
         else:
-            if self.ERI_Included == 1:
+            if self.included == "RFRI":
                 self.createRFRBtns()
-            elif self.ERI_Included == 2:
+            elif self.ncluded == 2:
                 self.createPrinterChoices()
-            elif self.ERI_Included == 3:
+            elif self.included == 3:
                 pass
 
     def createLabelBtns(self):
