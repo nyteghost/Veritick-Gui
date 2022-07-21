@@ -1,15 +1,10 @@
-from tkinter import *
-import tkinter as tk
 import customtkinter
 import sys
 import os
 import threading
-from veritick import main_run
-from textFrame import TextFrame
-import asyncio
+from scripts.veritick import main_run
+from _skeleton.textFrame import TextFrame
 import queue
-import random
-import veriLog
 from loguru import logger
 import better_exceptions
 
@@ -26,7 +21,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-img_dir = resource_path("images")
+img_dir = resource_path("../images")
 
 img_file = img_dir + "/sca-logo.jpg"
 

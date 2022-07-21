@@ -2,7 +2,6 @@ import customtkinter
 from tkinter import *
 import tkinter as tk
 import sys
-import veriLog
 from loguru import logger
 import better_exceptions
 
@@ -35,7 +34,10 @@ class TextFrame:
         )
 
         def redirector(inputStr):
-            self.my_text.insert(INSERT, inputStr)
+            try:
+                self.my_text.insert(INSERT, inputStr)
+            except Exception:
+                raise Exception('Exit')
         sys.stdout.write = redirector
 
         self.v.config(command=self.my_text.yview)

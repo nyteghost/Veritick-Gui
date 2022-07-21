@@ -3,8 +3,7 @@ import json
 import customtkinter
 import tkinter as tk
 from tkinter import Text
-from ticket_search import conn
-import veriLog
+from scripts.ticket_search import conn
 from loguru import logger
 import better_exceptions
 

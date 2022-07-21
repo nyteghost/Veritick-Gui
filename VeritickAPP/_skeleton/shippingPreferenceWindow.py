@@ -1,7 +1,6 @@
 import tkinter
 import customtkinter
 import better_exceptions
-import veriLog
 from loguru import logger
 
 # Settings

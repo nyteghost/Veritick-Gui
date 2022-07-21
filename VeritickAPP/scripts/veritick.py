@@ -2,16 +2,13 @@ import xlwings as xw
 import pandas as pd
 import numpy as np
 import getpass
-from ticket_search import *
-from notes_for_fillin import *
-from turtle import textinput
-import turtle
-from veriTableWindow import tableShow
-from shippingPreferenceWindow import equipPopUp
-from errorBox import errorBox, AssetLoc
-from entryboxBox import entryBox
+from scripts.ticket_search import *
+from scripts.notes_for_fillin import *
+from _skeleton.veriTableWindow import tableShow
+from _skeleton.shippingPreferenceWindow import equipPopUp
+from _skeleton.errorBox import errorBox, AssetLoc
+from _skeleton.entryboxBox import entryBox
 import better_exceptions
-import veriLog
 from loguru import logger
 import re
 

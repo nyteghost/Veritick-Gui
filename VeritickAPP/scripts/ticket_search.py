@@ -1,22 +1,17 @@
-import re
 import os
 from connectpyse.time import time_entries_api
 from connectpyse.service import tickets_api
-from loguru import logger
 import better_exceptions
 import re
 from fuzzywuzzy import fuzz
 import sqlalchemy as sa
 from sqlalchemy import exc
 from sqlalchemy.engine import URL
-import pyodbc
-from doorKey import config
-import veriLog
+from veri_conf.doorKey import config
 from loguru import logger
-from entryboxBox import entryBox
+from _skeleton.entryboxBox import entryBox
 # from turtle import textinput
 # import turtle
-import threading
 
 
 better_exceptions.hook()

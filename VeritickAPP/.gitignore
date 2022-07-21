@@ -9,6 +9,6 @@ output/
 auto_py_2_exe_config.json
 auto_py_2_exe_config3.json
 auto_py_2_exe_config2.json
-doorKey.py
+veri_conf/doorKey.py
 ex/
 html_gui_py39.code-workspace
