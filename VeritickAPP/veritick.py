@@ -9,6 +9,7 @@ import turtle
 from veriTableWindow import tableShow
 from shippingPreferenceWindow import equipPopUp
 from errorBox import errorBox, AssetLoc
+from entryboxBox import entryBox
 import better_exceptions
 import veriLog
 from loguru import logger
@@ -22,16 +23,16 @@ logger.critical('veritick')
 debug = 0
 
 
-def turtletext(text):
-    boxName = "Box Creation"
-    sc = turtle.Screen()
-    sc.bgcolor = (42, 45, 46)
-    sc.setup(0, 0)
-    result = textinput(boxName, text)
-    sc.bye()
-    if result == "":
-        exit()
-    return result
+# def turtletext(text):
+#     boxName = "Box Creation"
+#     sc = turtle.Screen()
+#     sc.bgcolor = (42, 45, 46)
+#     sc.setup(0, 0)
+#     result = textinput(boxName, text)
+#     sc.bye()
+#     if result == "":
+#         exit()
+#     return result
 
 
 @logger.catch
@@ -120,7 +121,9 @@ def main_run(ticketID, switch_state):
 
     p1 = AssetLoc(STID)
     cacheList = p1.findNone()
+    logger.info(cacheList)
     if cacheList:
+        print("CacheList not empty.")
         p2 = errorBox('Asset Location', "Asset Location", cacheList)
         p2.start()
 
@@ -264,9 +267,7 @@ def main_run(ticketID, switch_state):
                         Label_Method_Decision = ""
                     elif "hotspot" in Equipment_Requested:
                         print()
-                        turtletext(
-                            "This ticket is asking for assistance with a hot spot. Please forward to Sean."
-                        )
+                        entryBox("This ticket is asking for assistance with a hot spot. Please forward to Sean.")
                         pass
                     elif "windows" in Equipment_Requested:
                         print()
@@ -274,14 +275,14 @@ def main_run(ticketID, switch_state):
                             print("Student Windows Device Requested.")
                         else:
                             print("Staff Windows Device Requested")
-                        turtletext("Press enter to continue")
+                        entryBox("Press enter to continue")
                     else:
                         troubleshooting_notes = getShipFunc.find_troubleshooting()
                         Label_Method_Decision = getShipFunc.find_return_label()
                         rlm = Label_Method_Decision
 
                         if Label_Method_Decision == "Both":
-                            turtletext(
+                            entryBox(
                                 "Need to send both Electric Return Label, and include it box."
                             )
                             Label_Method_Decision = "Email Electronic Return Label"
@@ -292,6 +293,7 @@ def main_run(ticketID, switch_state):
                         email_Ratio, ticket_email = getShipFunc.compare_email_address()
                         print("Device")
                         print(Equipment_Requested.strip())
+                        logger.info("Device Requested: " + Equipment_Requested)
                         print()
                         print("Troubleshooting Notes")
                         print(troubleshooting_notes.strip())
@@ -319,7 +321,7 @@ def main_run(ticketID, switch_state):
                             print("Database Ship " + str(Address))
                             print("Ticket Ship: " + str(ticket_ship_address))
                         else:
-                            turtletext(
+                            entryBox(
                                 "Shipping Address is below the  threshold. Please verify address."
                             )
                             print(
@@ -352,7 +354,7 @@ def main_run(ticketID, switch_state):
                             print("Database Email: " + str(LG_Email))
                             print("Ticket Email: " + str(ticket_email))
                         else:
-                            turtletext("Email Address is below the  threshold. Please verify email.")
+                            entryBox("Email Address is below the  threshold. Please verify email.")
                             print(
                                 "Email information "
                                 + str(email_Ratio)
@@ -370,7 +372,7 @@ def main_run(ticketID, switch_state):
                             elif "charger" in Equipment_Requested:
                                 ERI = "3"
                             elif "headset" in Equipment_Requested:
-                                turtletext("Headset is being requested. Please verify manually.")
+                                entryBox("Headset is being requested. Please verify manually.")
 
                         elif staff == 1:
                             if "windows" in Equipment_Requested:
@@ -380,7 +382,7 @@ def main_run(ticketID, switch_state):
                             elif "charger" in Equipment_Requested:
                                 ERI = "3"
                             if "headset" in Equipment_Requested:
-                                turtletext(
+                                entryBox(
                                     "Headset is being requested. Please verify manually."
                                 )
             else:
@@ -400,8 +402,14 @@ def main_run(ticketID, switch_state):
                     Label_Method_Decision = "Email Electronic Return Label"
 
             if noLabel != 1:
+
+                # if ERI != 0:
+                #     logger.info(f'Using equipPopUp to find reason for return for ERI{ERI}')
+                    # s = equipPopUp("Equipment Requested", staff, included=ERI)
+
                 if RFRI == 0:
-                    s = equipPopUp("Equipment Requested", staff, included="RFRI")
+                    logger.info('RFRI found to be Zero')
+                    s = equipPopUp("Equipment Requested", staff, included="2")
                     s.start()
                     RFRI = s.getBtn2()
             print()
@@ -444,8 +452,7 @@ def main_run(ticketID, switch_state):
                 i = 0
                 while i < 1:
                     printCheckVariable = (
-                        Printer_Check["Device_Determination"]
-                    ).to_string(index=False)
+                        Printer_Check["Device_Determination"]).to_string(index=False)
                     if printCheckVariable == "Cleared For Shipment":
                         if staff == 0:
                             Equipment_Replacement = "Replacement Student Printer"

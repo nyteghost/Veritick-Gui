@@ -85,11 +85,11 @@ class equipPopUp(customtkinter.CTkToplevel):
                 )
                 self.radio_button.grid(row=x, column=1, sticky="nw")
         else:
-            if self.included == "RFRI":
+            if self.included == "1":
                 self.createRFRBtns()
-            elif self.ncluded == 2:
+            elif self.included == "2":
                 self.createPrinterChoices()
-            elif self.included == 3:
+            elif self.included == "3":
                 pass
 
     def createLabelBtns(self):

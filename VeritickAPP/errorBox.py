@@ -83,21 +83,26 @@ class AssetLoc:
     def findNone(self):
         for asset in self.currentAssetsList:
             assConfig = make_config(asset)
+            logger.info(assConfig)
             assDump = json.dumps(assConfig)
-            assLoc = assLocJSON(assDump)
-            deviceLoc = assLoc['DeviceLocation'].loc[0]
-            containerLoc = assLoc['ContainerLocation'].loc[0]
-            if deviceLoc is None and containerLoc is None:
-                pass
-                # print(f'Both Locations None for {asset}')
-                # self.locList.append(f'Both Locations None for {asset}')
-            elif deviceLoc is not None:
-                print(f'deviceLoc for {asset} is located :{deviceLoc}')
-                self.locList.append(f'deviceLoc for {asset} is located :{deviceLoc}')
-            elif containerLoc is not None:
-                print(f'containerLoc for {asset} is located at :{containerLoc}')
-                self.locList.append(f'containerLoc for {asset} is located at :{containerLoc}')
-        return self.locList
+            logger.info(assDump)
+            if assDump:
+                assLoc = assLocJSON(assDump)
+                if not assLoc.empty:
+                    deviceLoc = assLoc['DeviceLocation'].loc[0]
+                    containerLoc = assLoc['ContainerLocation'].loc[0]
+                    if deviceLoc is None and containerLoc is None:
+                        pass
+                        # print(f'Both Locations None for {asset}')
+                        # self.locList.append(f'Both Locations None for {asset}')
+                    elif deviceLoc is not None:
+                        print(f'deviceLoc for {asset} is located :{deviceLoc}')
+                        self.locList.append(f'deviceLoc for {asset} is located :{deviceLoc}')
+                    elif containerLoc is not None:
+                        print(f'containerLoc for {asset} is located at :{containerLoc}')
+                        self.locList.append(f'containerLoc for {asset} is located at :{containerLoc}')
+            return self.locList
+
 
 
 # STID = '1707390'

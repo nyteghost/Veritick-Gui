@@ -13,10 +13,27 @@ import pyodbc
 from doorKey import config
 import veriLog
 from loguru import logger
+from entryboxBox import entryBox
+# from turtle import textinput
+# import turtle
+import threading
+
 
 better_exceptions.hook()
 better_exceptions.MAX_LENGTH = None
 logger.critical('ticket_search')
+
+
+# def turtletext(text):
+#     boxName = "Box Creation"
+#     sc = turtle.Screen()
+#     sc.bgcolor = (42, 45, 46)
+#     sc.setup(0, 0)
+#     result = textinput(boxName, text)
+#     sc.bye()
+#     if result == "":
+#         exit()
+#     return result
 
 
 # SQL Connection Settings
@@ -32,7 +49,7 @@ try:
         "mssql+pyodbc", query={"odbc_connect": connection_string}
     )
     conn = sa.create_engine(connection_url)
-
+    print(connection_url)
 except exc.OperationalError as e:
     err_origin = str(e.orig)
     # print(e.statement,"threw an error due to;\n", style.RED+(err_origin)+style.RESET)
@@ -125,7 +142,7 @@ class ticket_search:
             for troubleshoot in troubleshooting_list:
                 return troubleshoot
         else:
-            troubleshoot = input("Please enter troubleshooting notes.")
+            troubleshoot = entryBox("Please enter troubleshooting notes.")
             return troubleshoot
 
     def find_return_label(self):
@@ -141,7 +158,8 @@ class ticket_search:
                 rlm = i
 
         if not return_label_list:
-            manual_rl = input("Please enter Return Label selection from ticket.")
+            manual_rl = entryBox("Please enter Return Label selection from ticket.")
+            manual_rl = manual_rl.upper()
             return_label_list = [manual_rl]
 
         for rlm in return_label_list:
@@ -149,6 +167,7 @@ class ticket_search:
             mylist = [x for x in res if x in label_list]
             for rl_in_list in mylist:
                 rlm = rl_in_list
+
             if rlm.strip() == "PNM":
                 Label_Method_Decision = "Print Return Label at SCA"
             elif rlm.strip() == "ERL":
@@ -159,6 +178,16 @@ class ticket_search:
                 Label_Method_Decision = ""
             elif "both" in rlm.strip():
                 Label_Method_Decision = "Both"
+            else:
+                rlm = entryBox("Please enter a valid return label method.")
+                if rlm.lower() == "pnm":
+                    Label_Method_Decision = "Print Return Label at SCA"
+                elif rlm.lower() == "erl":
+                    Label_Method_Decision = "Email Electronic Return Label"
+                elif rlm.lower() == "both":
+                    Label_Method_Decision = "Both"
+                else:
+                    Label_Method_Decision = ""
             return Label_Method_Decision
 
     def compare_shipping_address(self):
@@ -172,7 +201,7 @@ class ticket_search:
         else:
             if self.debug == 1:
                 logger.debug('"Shipping Address(.*)" did not find anything.')
-            sa = input("Enter shipping address from note.")
+            sa = entryBox("Enter shipping address from note.")
         address_ratio = fuzz.ratio(sa, street_name_fix(self.address).lower())
         # print("Shipping Address from ticket: "+str(sa)+" "+str(address_ratio)+", match to database entry.")
         return address_ratio, sa
