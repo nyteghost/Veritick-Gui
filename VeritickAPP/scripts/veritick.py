@@ -11,7 +11,7 @@ from _skeleton.entryboxBox import entryBox
 import better_exceptions
 from loguru import logger
 import re
-
+from concurrent.futures import ThreadPoolExecutor
 # Settings
 better_exceptions.MAX_LENGTH = None
 better_exceptions.hook()
@@ -102,9 +102,7 @@ def main_run(ticketID, switch_state):
 
     STID, OTN, return_label_requested = autoStart(int(ticketID))
     if not STID[0].isdigit():
-        findStaffID_query = "EXEC [staffUserNameToStaffID] " + str(
-            STID
-        )  # Checks Unreturned Equipment in SQL by STID
+        findStaffID_query = "EXEC [staffUserNameToStaffID] " + str(STID)  # Checks Unreturned Equipment in SQL by STID
         findStaffID = pd.read_sql(findStaffID_query, conn)
         staff_email = findStaffID["Org_Primary_Email"].loc[0]
         STID = findStaffID["Org_ID"].loc[0]
@@ -274,8 +272,14 @@ def main_run(ticketID, switch_state):
                             print("Staff Windows Device Requested")
                         entryBox("Press enter to continue")
                     else:
-                        troubleshooting_notes = getShipFunc.find_troubleshooting()
-                        Label_Method_Decision = getShipFunc.find_return_label()
+                        # troubleshooting_notes = getShipFunc.find_troubleshooting()
+                        # Label_Method_Decision = getShipFunc.find_return_label()
+                        with ThreadPoolExecutor(max_workers=1) as executor:
+                            troubleshooting_notes = executor.submit(getShipFunc.find_troubleshooting())
+                            Label_Method_Decision = executor.submit(getShipFunc.find_return_label())
+                            troubleshooting_notes = troubleshooting_notes.result()
+                            Label_Method_Decision = Label_Method_Decision.result()
+
                         rlm = Label_Method_Decision
 
                         if Label_Method_Decision == "Both":

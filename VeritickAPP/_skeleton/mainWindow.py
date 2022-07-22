@@ -4,7 +4,6 @@ import os
 import threading
 from scripts.veritick import main_run
 from _skeleton.textFrame import TextFrame
-import queue
 from loguru import logger
 import better_exceptions
 
@@ -12,7 +11,7 @@ better_exceptions.hook()
 better_exceptions.MAX_LENGTH = None
 logger.critical('mainWindow')
 
-q = queue.Queue()
+
 
 
 def resource_path(relative_path):
