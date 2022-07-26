@@ -107,7 +107,8 @@ class AssetLoc:
 # STID = '1707390'
 
 # p1 = AssetLoc(STID)
-# cacheList = p1.findNone()
-# if cacheList:
-#     p2 = errorBox('Asset Location', "Asset Location", cacheList)
-#     p2.start()
+# # cacheList = p1.findNone()
+# cacheList = ['test','test2']
+# # if cacheList:
+# #     p2 = errorBox('Asset Location', "Asset Location", cacheList)
+# #     p2.start()

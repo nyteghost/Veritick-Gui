@@ -6,7 +6,7 @@ from scripts.veritick import main_run
 from _skeleton.textFrame import TextFrame
 from loguru import logger
 import better_exceptions
-
+from concurrent.futures import ThreadPoolExecutor
 better_exceptions.hook()
 better_exceptions.MAX_LENGTH = None
 logger.critical('mainWindow')
@@ -76,8 +76,8 @@ class vtKinterClass(customtkinter.CTk):
         self.my_button = customtkinter.CTkButton(
             self.ticketEntryFrame,
             text="Lookup",
-            command=lambda: threading.Thread(target=self.veritick_on_press).start(),
-        )
+            command=lambda: threading.Thread(target=self.veritick_on_press).start())
+            # command=self.threading)
         self.my_button.grid(row=0, column=1, padx=10)
 
         # CMD Redirect Frame
@@ -102,6 +102,10 @@ class vtKinterClass(customtkinter.CTk):
 
         # sys.stdout.write = redirector
 
+    def threading(self):
+        threading.Thread(target=self.veritick_on_press).start()
+
+
     def veritick_on_press(self):
         value = self.ticketEntry.get().strip()
         switch_state = self.switch_event()
@@ -111,6 +115,7 @@ class vtKinterClass(customtkinter.CTk):
             print("*******************************************************")
             # _thread.start_new_thread(main_run,(value,switch_state))
             main_run(value, switch_state)
+            # threading.Thread(target=main_run(value, switch_state)).start()
 
     def switch_event(self):
         self.my_text.deleteTF("1.0", "end")

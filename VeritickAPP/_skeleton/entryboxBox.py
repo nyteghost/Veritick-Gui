@@ -10,7 +10,8 @@ class entryBoxMain(customtkinter.CTk):
 
 
 def entryBox(text):
-    entry = entryBoxMain(text).dialog.get_input()
+    entrystart = entryBoxMain(text)
+    entry = entrystart.dialog.get_input()
     return entry
 
 if __name__ == "__main__":

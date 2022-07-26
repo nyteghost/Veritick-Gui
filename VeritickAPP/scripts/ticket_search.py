@@ -43,7 +43,7 @@ try:
     connection_url = URL.create(
         "mssql+pyodbc", query={"odbc_connect": connection_string}
     )
-    conn = sa.create_engine(connection_url)
+    conn = sa.create_engine(connection_url, pool_size=32, max_overflow=0, pool_pre_ping=True, fast_executemany=True)
     print(connection_url)
 except exc.OperationalError as e:
     err_origin = str(e.orig)
@@ -144,46 +144,50 @@ class ticket_search:
         label_list = ["ERL", "PNM", "Email", "N/A"]
         find_return_label_method = re.compile("Label(.*)")
         return_label_list = find_return_label_method.findall(self.en.notes)
-        for rlm in return_label_list:
-            rlm = rlm.lower()
-            split_res = rlm.split()
-            res = split_res[-1]
-            mylist = [x for x in res if x in label_list]
-            for i in mylist:
-                rlm = i
+        logger.info(return_label_list)
+        if ' Method will be emailed out - ASAP Courier service is on an approval basis otherwise.' in return_label_list:
+            return "Email Electronic Return Label"
+        else:
+            for rlm in return_label_list:
+                rlm = rlm.lower()
+                split_res = rlm.split()
+                res = split_res[-1]
+                mylist = [x for x in res if x in label_list]
+                for i in mylist:
+                    rlm = i
 
-        if not return_label_list:
-            manual_rl = entryBox("Please enter Return Label selection from ticket.")
-            manual_rl = manual_rl.upper()
-            return_label_list = [manual_rl]
+            if not return_label_list:
+                manual_rl = entryBox("Please enter Return Label selection from ticket.")
+                manual_rl = manual_rl.upper()
+                return_label_list = [manual_rl]
 
-        for rlm in return_label_list:
-            res = rlm.split()
-            mylist = [x for x in res if x in label_list]
-            for rl_in_list in mylist:
-                rlm = rl_in_list
+            for rlm in return_label_list:
+                res = rlm.split()
+                mylist = [x for x in res if x in label_list]
+                for rl_in_list in mylist:
+                    rlm = rl_in_list
 
-            if rlm.strip() == "PNM":
-                Label_Method_Decision = "Print Return Label at SCA"
-            elif rlm.strip() == "ERL":
-                Label_Method_Decision = "Email Electronic Return Label"
-            elif rlm.strip() == "Email":
-                Label_Method_Decision = "Email Electronic Return Label"
-            elif rlm.strip() == "N/A":
-                Label_Method_Decision = ""
-            elif "both" in rlm.strip():
-                Label_Method_Decision = "Both"
-            else:
-                rlm = entryBox("Please enter a valid return label method.")
-                if rlm.lower() == "pnm":
+                if rlm.strip() == "PNM":
                     Label_Method_Decision = "Print Return Label at SCA"
-                elif rlm.lower() == "erl":
+                elif rlm.strip() == "ERL":
                     Label_Method_Decision = "Email Electronic Return Label"
-                elif rlm.lower() == "both":
+                elif rlm.strip() == "Email":
+                    Label_Method_Decision = "Email Electronic Return Label"
+                elif rlm.strip() == "N/A":
+                    Label_Method_Decision = ""
+                elif "both" in rlm.strip():
                     Label_Method_Decision = "Both"
                 else:
-                    Label_Method_Decision = ""
-            return Label_Method_Decision
+                    rlm = entryBox("Please enter a valid return label method.")
+                    if rlm.lower() == "pnm":
+                        Label_Method_Decision = "Print Return Label at SCA"
+                    elif rlm.lower() == "erl":
+                        Label_Method_Decision = "Email Electronic Return Label"
+                    elif rlm.lower() == "both":
+                        Label_Method_Decision = "Both"
+                    else:
+                        Label_Method_Decision = ""
+                return Label_Method_Decision
 
     def compare_shipping_address(self):
         find_ship = re.compile("Shipping Address(.*)")
