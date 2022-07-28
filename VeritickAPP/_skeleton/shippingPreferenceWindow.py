@@ -38,7 +38,7 @@ class equipPopUp(customtkinter.CTkToplevel):
 
         # Main Window
         self.title(f"{titleName}")
-        window_width = 750
+        window_width = 850
         window_height = 600
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()

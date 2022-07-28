@@ -21,3 +21,4 @@ myWindow = vtKinterClass()
 
 with ThreadPoolExecutor() as executor:
     executor.submit(myWindow.start())
+

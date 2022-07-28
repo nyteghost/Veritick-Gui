@@ -1,9 +1,11 @@
 import customtkinter
+import tkinter as tk
 import sys
 import os
 import threading
 from scripts.veritick import main_run
 from _skeleton.textFrame import TextFrame
+from _skeleton.clientInfoFrame import clientFrame
 from loguru import logger
 import better_exceptions
 from concurrent.futures import ThreadPoolExecutor
@@ -32,32 +34,24 @@ class vtKinterClass(customtkinter.CTk):
         self.title("VeriTick")
         self.update = update
         # Main Window
-        self.geometry(f"{1200}x{1080}")
+        self.geometry(f"{600}x{1150}")
 
         # Main Frame
-        self.MainFrame = customtkinter.CTkFrame(
-            self, corner_radius=10, width=1000, height=500
-        )
-        self.MainFrame.pack(pady=20, expand=True)
-
+        self.MainFrame = customtkinter.CTkFrame(self, corner_radius=10, width=1000, height=500)
+        # self.MainFrame.pack(pady=20, expand=True)
+        self.MainFrame.grid(row=0, column=0, pady=20, sticky="n,e,s,w")
         # CMD Redirect Frame
-        self.text_frame = customtkinter.CTkFrame(
-            self.MainFrame,
-            corner_radius=10,
-        )
+        self.text_frame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10,)
+        self.my_text = TextFrame(self.MainFrame, self.text_frame)
         self.text_frame.grid(row=2, column=0, padx=10, pady=10)
 
-        # self.my_text = Text(
-        #     self.text_frame,
-        #     height=600,
-        #     width=67,
-        #     wrap=WORD,
-        #     bd=0,
-        #     bg="#292929",
-        #     fg="silver",
-        # )
 
-        self.my_text = TextFrame(self.MainFrame, self.text_frame)
+
+
+        # Info Box
+        # self.client_info_frame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10,)
+        # self.client_info = clientFrame(self.MainFrame, self.client_info_frame)
+        # self.client_info_frame.grid(row=2, column=1, padx=10, pady=10)
 
         # Ticket Entry Section
         self.ticketEntryFrame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
@@ -94,6 +88,8 @@ class vtKinterClass(customtkinter.CTk):
 
         self.switch_1.deselect()
         self.switch_1.pack()
+
+
 
         # self.my_text.pack(fill="both", expand=True)
 
