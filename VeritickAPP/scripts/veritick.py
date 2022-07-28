@@ -309,8 +309,12 @@ def main_run(ticketID, switch_state):
                         print(Equipment_Requested.strip())
                         logger.info("Device Requested: " + Equipment_Requested)
                         print()
-                        print("Troubleshooting Notes")
-                        print(troubleshooting_notes.strip())
+
+                        if troubleshooting_notes:
+                            print("Troubleshooting Notes")
+                            print(troubleshooting_notes.strip())
+                            r1 = reply('Troubleshooting', 'Troubleshooting', troubleshooting_notes)
+                            r1.wait()
                         print()
                         print("Return Label Method")
                         print(Label_Method_Decision)
@@ -402,7 +406,7 @@ def main_run(ticketID, switch_state):
             else:
                 print("getShip is False")
                 noLabel = 1
-                s = equipPopUp("Equipment Requested", staff, "N", included="N")
+                s = equipPopUp("Equipment Requested", staff, "N", included="N", labeltext='Troubleshooting', populate=troubleshooting_notes)
                 s.start()
                 ERI = s.getBtn1()
                 RFRI = s.getBtn2()
@@ -425,7 +429,7 @@ def main_run(ticketID, switch_state):
                 if RFRI == 0:
                     print(f"RFRI is 0 and ERI is {ERI}")
                     logger.info('RFRI found to be Zero')
-                    s = equipPopUp("Equipment Requested", staff, included=str(ERI))
+                    s = equipPopUp("Equipment Requested", staff, included=str(ERI), labeltext='Troubleshooting', populate=troubleshooting_notes)
                     s.start()
                     RFRI = s.getBtn2()
             print()

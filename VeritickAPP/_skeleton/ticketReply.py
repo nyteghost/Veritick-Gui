@@ -24,7 +24,7 @@ class reply(customtkinter.CTkToplevel):
 
         # Main Window
         self.title(f"{titleName}")
-        window_width = 450
+        window_width = 650
         window_height = 300
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -35,7 +35,7 @@ class reply(customtkinter.CTkToplevel):
         self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
         # Create textbox
-        textbox = Text(self, height=5, width=52, bg="#292929", fg="silver")
+        textbox = Text(self, height=5, width=100, bg="#292929", fg="silver")
 
         # Create label
         lbl = customtkinter.CTkLabel(self, text=self.labeltext)
@@ -49,8 +49,11 @@ class reply(customtkinter.CTkToplevel):
         b1.pack()
 
         # Creates text in the text box from list
-        for i in self.populate:
-            textbox.insert(tk.END, i+'\n')
+        if self.populate == list:
+            for i in self.populate:
+                textbox.insert(tk.END, i+'\n')
+        else:
+            textbox.insert(tk.END, self.populate)
         textbox.config(state='disabled')
 
     # Start the popUp

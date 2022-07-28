@@ -1,7 +1,8 @@
-import tkinter
+import tkinter as tk
 import customtkinter
 import better_exceptions
 from loguru import logger
+from tkinter import Text
 
 # Settings
 better_exceptions.hook()
@@ -11,7 +12,7 @@ logger.critical('popUpBox')
 
 @logger.catch
 class equipPopUp(customtkinter.CTkToplevel):
-    def __init__(self, titleName, staff, labelFound="", included=""):
+    def __init__(self, titleName, staff, labeltext, populate, labelFound="", included="", ):
         super().__init__()
         self.rlm = None
         self.RFRI = None
@@ -19,6 +20,8 @@ class equipPopUp(customtkinter.CTkToplevel):
         self.label_radio_group3 = None
         self.label_radio_group2 = None
         self.my_button = None
+        self.labeltext = labeltext
+        self.populate = populate
         self.rfrBTNList = []
         self.printBTNList = []
 
@@ -44,13 +47,34 @@ class equipPopUp(customtkinter.CTkToplevel):
         center_y = int(screen_height / 2 - window_height / 2)
         self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
-        self.btn1 = tkinter.StringVar()
-        self.btn2 = tkinter.StringVar()
-        self.btn3 = tkinter.StringVar()
+        self.text_frame = customtkinter.CTkFrame(self, corner_radius=10)
+        self.text_frame.grid(row=20, columnspan=5, padx=10, pady=10)
 
-        self.label_radio_group = customtkinter.CTkLabel(
-            master=self, text="Please Select Request Equipment:"
-        )
+        self.textbox = Text(self.text_frame, height=5, width=100, bg="#292929", fg="silver")
+
+        # Create label
+        self.lbl = customtkinter.CTkLabel(self.text_frame, text=self.labeltext)
+        self.lbl.config()
+
+        # Pack the objects
+        self.lbl.pack()
+        self.textbox.pack()
+
+        logger.info("Populate:" + self.populate)
+
+        # Creates text in the text box from list
+        if self.populate == list:
+            for i in self.populate:
+                self.textbox.insert(tk.END, i + '\n')
+        else:
+            self.textbox.insert(tk.END, self.populate)
+        self.textbox.config(state='disabled')
+
+        self.btn1 = tk.StringVar()
+        self.btn2 = tk.StringVar()
+        self.btn3 = tk.StringVar()
+
+        self.label_radio_group = customtkinter.CTkLabel(master=self, text="Please Select Request Equipment:")
         self.label_radio_group.grid(row=0, column=0, sticky="nw")
 
         if self.labelFound == "N":
@@ -62,9 +86,7 @@ class equipPopUp(customtkinter.CTkToplevel):
             ]
             for i in Equipment_Requested:
                 z += 1
-                self.radio_button = customtkinter.CTkRadioButton(
-                    master=self, text=i, variable=self.btn3, value=z
-                )
+                self.radio_button = customtkinter.CTkRadioButton(master=self, text=i, variable=self.btn3, value=z)
                 self.radio_button.grid(row=z, column=0, sticky="nw")
 
             x = 0
@@ -90,6 +112,7 @@ class equipPopUp(customtkinter.CTkToplevel):
                 self.createPrinterChoices()
             elif self.included == "3":
                 pass
+
 
     def createLabelBtns(self):
         y = 0
