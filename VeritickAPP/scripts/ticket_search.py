@@ -98,7 +98,7 @@ class ticket_search:
 
     def find_device(self):
         ticket_summary = self.en.ticket["summary"].lower()
-        print(style.CYAN + "Ticket Summary:" + ticket_summary + style.RESET)
+        print("Ticket Summary:" + ticket_summary)
         if "charger" in ticket_summary:
             device_requested_in_function = "charger"
             if self.debug == 1:

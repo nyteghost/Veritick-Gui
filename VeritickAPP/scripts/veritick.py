@@ -19,7 +19,8 @@ better_exceptions.hook()
 logger.critical('veritick')
 
 debug = 0
-
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 # def turtletext(text):
 #     boxName = "Box Creation"
@@ -679,9 +680,7 @@ def main_run(ticketID, switch_state,switch_state2):
             pass
     else:
         # if not Unreturned.empty:
-        #     print(
-        #         "Sorry but there are no unreturned equipment. You will need to manually add return labels."
-        #     )
+        #     print("Sorry but there are no unreturned equipment. You will need to manually add return labels.")
         #     pass
 
         if staff == 0:
@@ -692,9 +691,7 @@ def main_run(ticketID, switch_state,switch_state2):
             print("Personal Email: " + FEL_Email)
             print("Staff Email: " + str(LG_Email))
             print("This Staff member has Outstanding Equipment")
-        Unreturned_New = Unreturned[
-            ["AssetID", "Dev_Cat", "Model_Number", "AssignDate", "CW_Contact"]
-        ].copy()
+        Unreturned_New = Unreturned[["AssetID", "Dev_Cat", "Model_Number", "AssignDate", "CW_Contact"]].copy()
         print(Unreturned_New)
         print("\n")
 
@@ -709,66 +706,64 @@ def main_run(ticketID, switch_state,switch_state2):
         df1 = pd.DataFrame(columns=columns)
         list_c = []
         new_list_b = []
-        for (
-                index,
-                row,
-        ) in Unreturned.T.iteritems():  # iterates over the unreturned equipment
+        print(Unreturned)
+        for (index, row,) in Unreturned.T.iteritems():  # iterates over the unreturned equipment
             list_b.append(row.FERPA_Contact)
-            list_c.append(
-                row.Dev_Cat + " " + row.Model_Number + " GCA-" + str(row.AssetID)
-            )
+            list_c.append(row.Dev_Cat + " " + row.Model_Number + " GCA-" + str(row.AssetID))
+        print(list_c)
 
-            # Checks if student is withdrawn
-            for i in list_b:
-                if staff == 0:
-                    y = int(re.sub("[^0-9]", "", i))
-                    for k, v in family_status_dict.items():
-                        if k == y:
-                            if v == "WITHDRAWN":
-                                if k != STID:
-                                    withdrawn = "sibling"
-                                    print('WITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWN')
-                                    new_list_b.append(k)
-                                    values = [
-                                        row.CW_Contact,
-                                        row.Dev_Cat,
-                                        "Withdrawn",
-                                        "Email Electronic Return Label",
-                                    ]
-                                else:
-                                    withdrawn = True
-                                    print('WITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWN')
-                                    new_list_b.append(k)
-                                    values = [
-                                        row.CW_Contact,
-                                        row.Dev_Cat,
-                                        "Withdrawn",
-                                        "Email Electronic Return Label",
-                                    ]
-                            else:
+
+        # Checks if student is withdrawn
+        for i in list_b:
+            if staff == 0:
+                y = int(re.sub("[^0-9]", "", i))
+                for k, v in family_status_dict.items():
+                    if k == y:
+                        if v == "WITHDRAWN":
+                            if k != STID:
+                                withdrawn = "sibling"
+                                print('WITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWN')
+                                new_list_b.append(k)
                                 values = [
                                     row.CW_Contact,
                                     row.Dev_Cat,
-                                    "Normal Return",
+                                    "Withdrawn",
                                     "Email Electronic Return Label",
                                 ]
-                else:
-                    for k, v in family_status_dict.items():
-                        if v == "ACTIVE":
-                            new_list_b.append(k)
+                            else:
+                                withdrawn = True
+                                print('WITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWN')
+                                new_list_b.append(k)
+                                values = [
+                                    row.CW_Contact,
+                                    row.Dev_Cat,
+                                    "Withdrawn",
+                                    "Email Electronic Return Label",
+                                ]
+                        else:
                             values = [
                                 row.CW_Contact,
                                 row.Dev_Cat,
                                 "Normal Return",
                                 "Email Electronic Return Label",
                             ]
-                        else:
-                            values = [
-                                row.CW_Contact,
-                                row.Dev_Cat,
-                                "Withdrawn",
-                                "Email Electronic Return Label",
-                            ]
+            else:
+                for k, v in family_status_dict.items():
+                    if v == "ACTIVE":
+                        new_list_b.append(k)
+                        values = [
+                            row.CW_Contact,
+                            row.Dev_Cat,
+                            "Normal Return",
+                            "Email Electronic Return Label",
+                        ]
+                    else:
+                        values = [
+                            row.CW_Contact,
+                            row.Dev_Cat,
+                            "Withdrawn",
+                            "Email Electronic Return Label",
+                        ]
 
             # CHANGES THE RESULTS OF UNRETURNED INTO A LIST. THEN FROM LIST TO NUMPY ARRAY WHICH IS THEN APPENDED TO A DATAFRAME.
             values = np.array(values)
@@ -781,19 +776,24 @@ def main_run(ticketID, switch_state,switch_state2):
                 values = np.where(values == "Kit", "Staff Kit", values)
             zipped = zip(columns, values)
             a_dictionary = dict(zipped)
+
             RL_data.append(a_dictionary)
-        # df1 = pd.DataFrame.from_dict(RL_data)
-        df1 = pd.DataFrame(RL_data)
-        df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
-        for index, row in df1.iterrows():
-            if row["Reason For Return"] == "Withdrawn":
-                if row["IS_DUPLICATED"]:
-                    df1.at[index, "Equipment Being Returned"] = "ES - ALL"
-                    df1 = df1.drop_duplicates(
-                        subset=["Contact", "Reason For Return"], keep="last"
-                    )
-        df1 = df1.drop("IS_DUPLICATED", axis=1)
-        df1 = df1.reset_index(drop=True)
+            print("RL_data")
+            print(RL_data)
+
+            df1 = pd.DataFrame.from_dict(RL_data)
+            print('df1')
+            print(df1)
+        # df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
+        # for index, row in df1.iterrows():
+        #     if row["Reason For Return"] == "Withdrawn":
+        #         if row["IS_DUPLICATED"]:
+        #             df1.at[index, "Equipment Being Returned"] = "ES - ALL"
+        #             df1 = df1.drop_duplicates(
+        #                 subset=["Contact", "Reason For Return"], keep="last"
+        #             )
+        # df1 = df1.drop("IS_DUPLICATED", axis=1)
+        # df1 = df1.reset_index(drop=True)
 
         if update_master_updater == 1:
             x = None
@@ -826,12 +826,9 @@ def main_run(ticketID, switch_state,switch_state2):
             wb.save()
             val = returnlabelsWS.range(printFilledRow).value
         else:
-            if df1.empty:
-                print(
-                    "Sorry but there are no unreturned equipment. You will need to manually add them."
-                )
-                pass
-            showDF = tableShow(df)
+            # print("Sorry but there are no unreturned equipment. You will need to manually add them.")
+            # pass
+            showDF = tableShow(df1)
             showDF.start()
             # threading.Thread(target=tableShow(df)).start()
 
@@ -893,5 +890,5 @@ def main_run(ticketID, switch_state,switch_state2):
         #     print('Issue with Outstanding DataFrame Creation')
     print("Done")
 
-# if __name__ == '__main__':
-#     main_run(366534,0)
+if __name__ == '__main__':
+    main_run(378951 , 0, 0)
