@@ -109,6 +109,7 @@ class ticket_search:
             device_list = ["windows", "chromebook", "printer", "headset", "headphone"]
             find_device_request = re.compile("Device type(.*)")
             device_request_list = find_device_request.findall(self.en.notes)
+            logger.critical(device_request_list)
             for device_requested_in_function in device_request_list:
                 device_requested_in_function = device_requested_in_function.lower()
                 split_res = device_requested_in_function.split()

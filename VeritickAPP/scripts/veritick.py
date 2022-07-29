@@ -692,7 +692,7 @@ def main_run(ticketID, switch_state,switch_state2):
             print("Staff Email: " + str(LG_Email))
             print("This Staff member has Outstanding Equipment")
         Unreturned_New = Unreturned[["AssetID", "Dev_Cat", "Model_Number", "AssignDate", "CW_Contact"]].copy()
-        print(Unreturned_New)
+        # print(Unreturned_New)
         print("\n")
 
         # Creation of Dataframe
@@ -706,17 +706,16 @@ def main_run(ticketID, switch_state,switch_state2):
         df1 = pd.DataFrame(columns=columns)
         list_c = []
         new_list_b = []
-        print(Unreturned)
+        # print(Unreturned)
         for (index, row,) in Unreturned.T.iteritems():  # iterates over the unreturned equipment
             list_b.append(row.FERPA_Contact)
             list_c.append(row.Dev_Cat + " " + row.Model_Number + " GCA-" + str(row.AssetID))
-        print(list_c)
 
 
         # Checks if student is withdrawn
-        for i in list_b:
+            logger.info(row.CW_Contact, row.Dev_Cat, row.Model_Number, row.AssetID)
             if staff == 0:
-                y = int(re.sub("[^0-9]", "", i))
+                y = int(re.sub("[^0-9]", "", row.FERPA_Contact))
                 for k, v in family_status_dict.items():
                     if k == y:
                         if v == "WITHDRAWN":
@@ -724,7 +723,7 @@ def main_run(ticketID, switch_state,switch_state2):
                                 withdrawn = "sibling"
                                 print('WITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWN')
                                 new_list_b.append(k)
-                                values = [
+                                value = [
                                     row.CW_Contact,
                                     row.Dev_Cat,
                                     "Withdrawn",
@@ -734,14 +733,14 @@ def main_run(ticketID, switch_state,switch_state2):
                                 withdrawn = True
                                 print('WITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWNWITHDRAWN')
                                 new_list_b.append(k)
-                                values = [
+                                value = [
                                     row.CW_Contact,
                                     row.Dev_Cat,
                                     "Withdrawn",
                                     "Email Electronic Return Label",
                                 ]
                         else:
-                            values = [
+                            value = [
                                 row.CW_Contact,
                                 row.Dev_Cat,
                                 "Normal Return",
@@ -751,14 +750,14 @@ def main_run(ticketID, switch_state,switch_state2):
                 for k, v in family_status_dict.items():
                     if v == "ACTIVE":
                         new_list_b.append(k)
-                        values = [
+                        value = [
                             row.CW_Contact,
                             row.Dev_Cat,
                             "Normal Return",
                             "Email Electronic Return Label",
                         ]
                     else:
-                        values = [
+                        value = [
                             row.CW_Contact,
                             row.Dev_Cat,
                             "Withdrawn",
@@ -766,7 +765,8 @@ def main_run(ticketID, switch_state,switch_state2):
                         ]
 
             # CHANGES THE RESULTS OF UNRETURNED INTO A LIST. THEN FROM LIST TO NUMPY ARRAY WHICH IS THEN APPENDED TO A DATAFRAME.
-            values = np.array(values)
+            logger.info(value)
+            values = np.array(value)
             values = np.where(values == "Hotspot", "GCA Hotspot", values)
             if staff == 0:
                 values = np.where(values == "Printer", "Student Printer", values)
@@ -775,25 +775,27 @@ def main_run(ticketID, switch_state,switch_state2):
                 values = np.where(values == "Printer", "Staff Printer", values)
                 values = np.where(values == "Kit", "Staff Kit", values)
             zipped = zip(columns, values)
+
             a_dictionary = dict(zipped)
-
+            logger.info(a_dictionary)
             RL_data.append(a_dictionary)
-            print("RL_data")
-            print(RL_data)
 
-            df1 = pd.DataFrame.from_dict(RL_data)
-            print('df1')
-            print(df1)
-        # df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
-        # for index, row in df1.iterrows():
-        #     if row["Reason For Return"] == "Withdrawn":
-        #         if row["IS_DUPLICATED"]:
-        #             df1.at[index, "Equipment Being Returned"] = "ES - ALL"
-        #             df1 = df1.drop_duplicates(
-        #                 subset=["Contact", "Reason For Return"], keep="last"
-        #             )
-        # df1 = df1.drop("IS_DUPLICATED", axis=1)
-        # df1 = df1.reset_index(drop=True)
+        logger.info(RL_data)
+        df1 = pd.DataFrame.from_dict(RL_data)
+
+            # print('df1')
+            # print(df1)
+        df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
+        for index, row in df1.iterrows():
+            if row["Reason For Return"] == "Withdrawn":
+                if row["IS_DUPLICATED"]:
+                    df1.at[index, "Equipment Being Returned"] = "ES - ALL"
+                    df1 = df1.drop_duplicates(
+                        subset=["Contact", "Reason For Return"], keep="last"
+                    )
+        df1 = df1.drop("IS_DUPLICATED", axis=1)
+        df1 = df1.reset_index(drop=True)
+        logger.info(df1)
 
         if update_master_updater == 1:
             x = None
@@ -817,7 +819,7 @@ def main_run(ticketID, switch_state,switch_state2):
             lastRowFill2 = str(row - 1)
             nRowFill = "L" + str(row - 1)
             printFilledRow = f"{lastRowFill}:{nRowFill}"
-            print(lastRowFill)
+            # print(lastRowFill)
             # val = returnlabelsWS.range(lastRowFill).value
             df1.columns = df1.iloc[0]
             df1 = df1[1:]
@@ -865,7 +867,7 @@ def main_run(ticketID, switch_state,switch_state2):
                     asset=asset_list,
                 )
             )
-            print("\n", uMADFormat)
+            # print("\n", uMADFormat)
             umad = reply('UMAD', 'UMAD', uMADFormat, heightspec=100)
             umad.wait()
             lmdlist = []
