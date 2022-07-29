@@ -66,10 +66,11 @@ class MyTable(Table):
         return
 
     def popupMenu(self, event, rows=None, cols=None, outside=None):
-        """Custom right click menu"""
-        popupmenu = Table.popupMenu(event)
-        # popupmenu add_command here
-        return popupmenu
+        pass
+        # """Custom right click menu"""
+        # popupmenu = Table.popupMenu(event)
+        # # popupmenu add_command here
+        # return popupmenu
 
     def copy(self, rows, cols=None):
         """Copy cell contents to clipboard"""

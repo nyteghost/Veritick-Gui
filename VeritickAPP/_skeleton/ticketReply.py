@@ -16,7 +16,7 @@ logger.critical('assetLocation')
 
 @logger.catch
 class reply(customtkinter.CTkToplevel):
-    def __init__(self, titleName, labeltext, populate):
+    def __init__(self, titleName, labeltext, populate, heightspec):
         super().__init__()
         self.titleName = titleName
         self.labeltext = labeltext
@@ -35,7 +35,7 @@ class reply(customtkinter.CTkToplevel):
         self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
         # Create textbox
-        textbox = Text(self, height=5, width=100, bg="#292929", fg="silver")
+        textbox = Text(self, height=heightspec, width=100, bg="#292929", fg="silver")
 
         # Create label
         lbl = customtkinter.CTkLabel(self, text=self.labeltext)

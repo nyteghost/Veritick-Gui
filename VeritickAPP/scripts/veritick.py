@@ -40,7 +40,7 @@ def pandasSQLTable(proc, STID):
     return result
 
 @logger.catch
-def main_run(ticketID, switch_state):
+def main_run(ticketID, switch_state,switch_state2):
     print(ticketID)
     print()
 
@@ -48,6 +48,11 @@ def main_run(ticketID, switch_state):
         update_master_update = "Y"
     else:
         update_master_update = "N"
+
+    if switch_state2 == 1:
+        logger.info('Switch State 2 is ON')
+    else:
+        logger.info('Switch State 2 is OFF')
 
     # update_master_update = 'n'
     if update_master_update == "Y" or update_master_update == "y":
@@ -136,7 +141,6 @@ def main_run(ticketID, switch_state):
     #
     # # Family lookup to retrieve some information needed
     # Fam_Lookup_Query = "EXEC [uspFamilyLookUp] " + STID
-
 
     try:
         Unreturned = pandasSQLTable('uspFamUnreturnedDevCheck', STID)
@@ -658,13 +662,13 @@ def main_run(ticketID, switch_state):
                     print('Choose "Shipping - Replacement PRL" as note to send.')
                     print("Also let Warehouse know!")
                     print(f"@Shipping\n{Contact}\nPrint at warehouse, include in box")
-                    r1 = reply('LMD', 'lmb', lmdlist)
+                    r1 = reply('LMD', 'lmb', lmdlist,heightspec=5)
                     # r1.wait()
                     print("\n")
                 elif Label_Method_Decision == "Email Electronic Return Label":
                     lmdlist = ['Choose "Shipping - Replacement ERL" as note to send.']
                     print('Choose "Shipping - Replacement ERL" as note to send.')
-                    r1 = reply('LMD', 'lmb', lmdlist)
+                    r1 = reply('LMD', 'lmb', lmdlist,heightspec=5)
                     # r1.wait()
                     print("\n")
                 else:
@@ -674,11 +678,11 @@ def main_run(ticketID, switch_state):
         elif "Not Cleared - Not Registering" in Decision:
             pass
     else:
-        if not Unreturned.empty:
-            print(
-                "Sorry but there are no unreturned equipment. You will need to manually add return labels."
-            )
-            pass
+        # if not Unreturned.empty:
+        #     print(
+        #         "Sorry but there are no unreturned equipment. You will need to manually add return labels."
+        #     )
+        #     pass
 
         if staff == 0:
             print("FEL Email: " + FEL_Email)
@@ -778,7 +782,8 @@ def main_run(ticketID, switch_state):
             zipped = zip(columns, values)
             a_dictionary = dict(zipped)
             RL_data.append(a_dictionary)
-        df1 = pd.DataFrame.from_dict(RL_data)
+        # df1 = pd.DataFrame.from_dict(RL_data)
+        df1 = pd.DataFrame(RL_data)
         df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
         for index, row in df1.iterrows():
             if row["Reason For Return"] == "Withdrawn":
@@ -864,19 +869,21 @@ def main_run(ticketID, switch_state):
                 )
             )
             print("\n", uMADFormat)
+            umad = reply('UMAD', 'UMAD', uMADFormat, heightspec=100)
+            umad.wait()
             lmdlist = []
             if Label_Method_Decision == "Print Return Label at SCA":
                 lmdlist = ['Choose "Shipping - Replacement PRL" as note to send.',"Also let Warehouse know!",f"@Shipping\n{Contact}\nPrint at warehouse, include in box"]
                 print('Choose "Shipping - Replacement PRL" as note to send.')
                 print("Also let Warehouse know!")
                 print(f"@Shipping\n{Contact}\nPrint at warehouse, include in box")
-                r1 = reply('LMD', 'lmb', lmdlist)
+                r1 = reply('LMD', 'lmb', lmdlist, heightspec=5)
                 r1.wait()
                 print("\n")
             elif Label_Method_Decision == "Email Electronic Return Label":
                 lmdlist = ['Choose "Shipping - Replacement ERL" as note to send.']
                 print('Choose "Shipping - Replacement ERL" as note to send.')
-                r1 = reply('LMD', 'lmb', lmdlist)
+                r1 = reply('LMD', 'lmb', lmdlist, heightspec=5)
                 r1.wait()
                 print("\n")
             else:

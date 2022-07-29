@@ -14,8 +14,6 @@ better_exceptions.MAX_LENGTH = None
 logger.critical('mainWindow')
 
 
-
-
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
     base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
@@ -34,16 +32,23 @@ class vtKinterClass(customtkinter.CTk):
         self.title("VeriTick")
         self.update = update
         # Main Window
-        self.geometry(f"{600}x{1150}")
-
+        # self.geometry(f"{600}x{1150}")
+        window_width = 850
+        window_height = 600
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        # find the center point
+        center_x = int(screen_width / 2 - window_width / 2)
+        center_y = int(screen_height / 2 - window_height / 2)
+        self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
         # Main Frame
-        self.MainFrame = customtkinter.CTkFrame(self, corner_radius=10, width=1000, height=500)
+        self.MainFrame = customtkinter.CTkFrame(self, corner_radius=10, height=window_height, width=window_width)
         # self.MainFrame.pack(pady=20, expand=True)
-        self.MainFrame.grid(row=0, column=0, pady=20, sticky="n,e,s,w")
+        self.MainFrame.grid(rowspan=5, columnspan=5, pady=20, sticky="n,e,s,w")
         # CMD Redirect Frame
         self.text_frame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10,)
         self.my_text = TextFrame(self.MainFrame, self.text_frame)
-        self.text_frame.grid(row=2, column=0, padx=10, pady=10)
+        self.text_frame.grid(row=2, column=0, padx=10, pady=10, sticky="n,e,s,w")
 
 
 
@@ -55,7 +60,7 @@ class vtKinterClass(customtkinter.CTk):
 
         # Ticket Entry Section
         self.ticketEntryFrame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
-        self.ticketEntryFrame.grid(row=0, column=0, padx=10, pady=10)
+        self.ticketEntryFrame.grid(row=0, column=0, padx=10, pady=10, sticky="n,e,s,w")
 
         self.ticketEntry = customtkinter.CTkEntry(
             self.ticketEntryFrame,
@@ -74,7 +79,7 @@ class vtKinterClass(customtkinter.CTk):
             # command=self.threading)
         self.my_button.grid(row=0, column=1, padx=10)
 
-        # CMD Redirect Frame
+        # Switch Section
         self.switch_frame = customtkinter.CTkFrame(self.MainFrame, corner_radius=10)
         self.switch_frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
         self.switch_1 = customtkinter.CTkSwitch(
@@ -86,17 +91,20 @@ class vtKinterClass(customtkinter.CTk):
             bg_color="#2A2D2E",
         )
 
+        self.switch_2 = customtkinter.CTkSwitch(
+            self.switch_frame,
+            text="Student",
+            command=self.switch_event2,
+            onvalue="on",
+            offvalue="off",
+            bg_color="#2A2D2E",
+        )
         self.switch_1.deselect()
-        self.switch_1.pack()
+        self.switch_2.deselect()
 
+        self.switch_1.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        self.switch_2.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
-
-        # self.my_text.pack(fill="both", expand=True)
-
-        # def redirector(inputStr):
-        #     self.my_text.insert(INSERT, inputStr)
-
-        # sys.stdout.write = redirector
 
     def threading(self):
         threading.Thread(target=self.veritick_on_press).start()
@@ -105,15 +113,24 @@ class vtKinterClass(customtkinter.CTk):
     def veritick_on_press(self):
         value = self.ticketEntry.get().strip()
         switch_state = self.switch_event()
+        switch_state2 = self.switch_event2()
         if not value:
             print("You didn't enter anything!")
         else:
             print("*******************************************************")
             # _thread.start_new_thread(main_run,(value,switch_state))
-            main_run(value, switch_state)
+            main_run(value, switch_state, switch_state2)
             # threading.Thread(target=main_run(value, switch_state)).start()
 
     def switch_event(self):
+        self.my_text.deleteTF("1.0", "end")
+        if self.switch_1.get() == "on":
+            switch_state = 1
+        else:
+            switch_state = 0
+        return switch_state
+
+    def switch_event2(self):
         self.my_text.deleteTF("1.0", "end")
         if self.switch_1.get() == "on":
             switch_state = 1
