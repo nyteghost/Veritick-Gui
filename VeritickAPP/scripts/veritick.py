@@ -784,16 +784,16 @@ def main_run(ticketID, switch_state,switch_state2):
             df1 = pd.DataFrame.from_dict(RL_data)
             print('df1')
             print(df1)
-        # df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
-        # for index, row in df1.iterrows():
-        #     if row["Reason For Return"] == "Withdrawn":
-        #         if row["IS_DUPLICATED"]:
-        #             df1.at[index, "Equipment Being Returned"] = "ES - ALL"
-        #             df1 = df1.drop_duplicates(
-        #                 subset=["Contact", "Reason For Return"], keep="last"
-        #             )
-        # df1 = df1.drop("IS_DUPLICATED", axis=1)
-        # df1 = df1.reset_index(drop=True)
+        df1["IS_DUPLICATED"] = df1.duplicated(subset=["Contact", "Reason For Return"])
+        for index, row in df1.iterrows():
+            if row["Reason For Return"] == "Withdrawn":
+                if row["IS_DUPLICATED"]:
+                    df1.at[index, "Equipment Being Returned"] = "ES - ALL"
+                    df1 = df1.drop_duplicates(
+                        subset=["Contact", "Reason For Return"], keep="last"
+                    )
+        df1 = df1.drop("IS_DUPLICATED", axis=1)
+        df1 = df1.reset_index(drop=True)
 
         if update_master_updater == 1:
             x = None
