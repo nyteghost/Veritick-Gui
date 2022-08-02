@@ -90,7 +90,7 @@ class vtKinterClass(customtkinter.CTk):
             offvalue="off",
             bg_color="#2A2D2E",
         )
-
+#
         self.switch_2 = customtkinter.CTkSwitch(
             self.switch_frame,
             text="Student",
