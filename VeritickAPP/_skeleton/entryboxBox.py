@@ -5,7 +5,6 @@ class entryBoxMain(customtkinter.CTk):
     def __init__(self, textInput):
         super().__init__()
         self.textInput = textInput
-        self.geometry("400x300")
         self.dialog = customtkinter.CTkInputDialog(master=None, text=self.textInput, title="Test")
 
 

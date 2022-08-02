@@ -1,3 +1,4 @@
+import sqlalchemy
 import xlwings as xw
 import pandas as pd
 import numpy as np
@@ -12,6 +13,7 @@ from _skeleton.ticketReply import reply
 import better_exceptions
 from loguru import logger
 import re
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 # Settings
 better_exceptions.MAX_LENGTH = None
@@ -103,6 +105,12 @@ def main_run(ticketID, switch_state,switch_state2):
     troubleshooting_notes = None
     return_label_requested = 0
     withdrawn = None
+
+    # lists
+    list_i = []
+    list_b = []
+    RL_data = []
+
     # Pandas Options
     # pd.options.display.max_columns = None
     # pd.options.display.width=None
@@ -177,22 +185,6 @@ def main_run(ticketID, switch_state,switch_state2):
             logger.exception("Double User found")
         pass
 
-    shipmentClearance = pandasSQLTable('uspShipmentClearanceCheck', STID)
-
-    # shipmentClearanceQuery = "EXEC [uspShipmentClearanceCheck] " + str(STID)
-    # shipmentClearance = pd.read_sql(shipmentClearanceQuery, conn)
-
-    Kit_Check = shipmentClearance.loc[
-        shipmentClearance["Dev_Option"].str.contains("Kit")
-    ]
-    Printer_Check = shipmentClearance.loc[
-        shipmentClearance["Dev_Option"].str.contains("Printer")
-    ]
-
-    # lists
-    list_i = []
-    list_b = []
-    RL_data = []
 
     # Global Variables
     if staff != 1:
@@ -238,6 +230,15 @@ def main_run(ticketID, switch_state,switch_state2):
     print("Return Label Requested requested " + str(return_label_requested))
 
     if Unreturned.empty and return_label_requested != 1:
+        try:
+            shipmentClearance = pandasSQLTable('uspShipmentClearanceCheck', STID)
+        except exc.ResourceClosedError as e:
+            print(e)
+            print('This is currently being worked on. Please Complete ticket Manually.')
+
+        Kit_Check = shipmentClearance.loc[shipmentClearance["Dev_Option"].str.contains("Kit")]
+        Printer_Check = shipmentClearance.loc[shipmentClearance["Dev_Option"].str.contains("Printer")]
+
         logger.info('Return Label Not Requested')# or Check == "Yes":
         Decision = (Kit_Check["Device_Determination"]).to_string(index=False)
         # if staff == 1:
@@ -411,7 +412,10 @@ def main_run(ticketID, switch_state,switch_state2):
             else:
                 print("getShip is False")
                 noLabel = 1
-                s = equipPopUp("Equipment Requested", staff, "N", included="N", labeltext='Troubleshooting', populate=troubleshooting_notes)
+                if troubleshooting_notes:
+                    s = equipPopUp("Equipment Requested", staff, labelFound="N", included="N", labeltext='Troubleshooting', populate=troubleshooting_notes)
+                else:
+                    s = equipPopUp("Equipment Requested", staff, labelFound="N", included="N", labeltext='Troubleshooting', populate="")
                 s.start()
                 ERI = s.getBtn1()
                 RFRI = s.getBtn2()
@@ -835,13 +839,15 @@ def main_run(ticketID, switch_state,switch_state2):
             # threading.Thread(target=tableShow(df)).start()
 
         print()
-        print("Return label requested: " + str(return_label_requested))
+        logger.info("Return label requested: " + str(return_label_requested))
         if return_label_requested == 0:
             print(", ".join(list_b))
             print()
             print("\n".join(list_c))
         if len(list_b) > 1:
             student_list = ",".join(list_b[:-1]) + "& " + list_b[-1]
+            res = list(OrderedDict.fromkeys(list_b))
+            res = ",".join(res[:-1]) + "& " + res[-1]
             deviceamount = "devices"
             labelamount = "labels"
             need = "there are devices"
@@ -849,47 +855,48 @@ def main_run(ticketID, switch_state,switch_state2):
 
         else:
             student_list = ",".join(list_b[:-1]) + "" + list_b[-1]
+            res = list(OrderedDict.fromkeys(list_b))
+            res = ",".join(res[:-1]) + "" + res[-1]
             deviceamount = "device"
             labelamount = "label"
             need = "a device is"
             thatwerenot = "that was not returned after it was"
         asset_list = "\n".join(list_c)
 
-        if not withdrawn:
-            uMADFormat = uMAD.format_map(
-                Default(
-                    need=need,
-                    thatwerenot=thatwerenot,
-                    device=deviceamount,
-                    label=labelamount,
-                    email=LG_Email,
-                    student_name=student_list,
-                    asset=asset_list,
-                )
+
+
+        uMADFormat = uMAD.format_map(
+            Default(
+                need=need,
+                thatwerenot=thatwerenot,
+                device=deviceamount,
+                label=labelamount,
+                email=LG_Email,
+                student_name=res,
+                asset=asset_list,
             )
-            # print("\n", uMADFormat)
-            umad = reply('UMAD', 'UMAD', uMADFormat, heightspec=100)
-            umad.wait()
-            lmdlist = []
-            if Label_Method_Decision == "Print Return Label at SCA":
-                lmdlist = ['Choose "Shipping - Replacement PRL" as note to send.',"Also let Warehouse know!",f"@Shipping\n{Contact}\nPrint at warehouse, include in box"]
-                print('Choose "Shipping - Replacement PRL" as note to send.')
-                print("Also let Warehouse know!")
-                print(f"@Shipping\n{Contact}\nPrint at warehouse, include in box")
-                r1 = reply('LMD', 'lmb', lmdlist, heightspec=5)
-                r1.wait()
-                print("\n")
-            elif Label_Method_Decision == "Email Electronic Return Label":
-                lmdlist = ['Choose "Shipping - Replacement ERL" as note to send.']
-                print('Choose "Shipping - Replacement ERL" as note to send.')
-                r1 = reply('LMD', 'lmb', lmdlist, heightspec=5)
-                r1.wait()
-                print("\n")
-            else:
-                print('Choose "Shipping - Replacement ERL" as note to send.')
-    # except Exception as e:
-        #     print(e)
-        #     print('Issue with Outstanding DataFrame Creation')
+            )
+        # print("\n", uMADFormat)
+        umad = reply('UMAD', 'UMAD', uMADFormat, heightspec=100, window_height_spec=800,window_width_spec=1080)
+        umad.wait()
+        lmdlist = []
+        if Label_Method_Decision == "Print Return Label at SCA":
+            lmdlist = ['Choose "Shipping - Replacement PRL" as note to send.',"Also let Warehouse know!",f"@Shipping\n{Contact}\nPrint at warehouse, include in box"]
+            print('Choose "Shipping - Replacement PRL" as note to send.')
+            print("Also let Warehouse know!")
+            print(f"@Shipping\n{Contact}\nPrint at warehouse, include in box")
+            r1 = reply('LMD', 'lmb', lmdlist, heightspec=5)
+            r1.wait()
+            print("\n")
+        elif Label_Method_Decision == "Email Electronic Return Label":
+            lmdlist = ['Choose "Shipping - Replacement ERL" as note to send.']
+            print('Choose "Shipping - Replacement ERL" as note to send.')
+            r1 = reply('LMD', 'lmb', lmdlist, heightspec=5)
+            r1.wait()
+            print("\n")
+        else:
+            print('Choose "Shipping - Replacement ERL" as note to send.')
+
     print("Done")
 
 if __name__ == '__main__':

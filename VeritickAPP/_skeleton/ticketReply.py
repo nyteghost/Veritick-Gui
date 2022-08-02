@@ -16,7 +16,7 @@ logger.critical('assetLocation')
 
 @logger.catch
 class reply(customtkinter.CTkToplevel):
-    def __init__(self, titleName, labeltext, populate, heightspec):
+    def __init__(self, titleName, labeltext, populate, heightspec, window_height_spec=300, window_width_spec=650):
         super().__init__()
         self.titleName = titleName
         self.labeltext = labeltext
@@ -24,8 +24,15 @@ class reply(customtkinter.CTkToplevel):
 
         # Main Window
         self.title(f"{titleName}")
-        window_width = 650
-        window_height = 300
+        if window_width_spec != 650:
+            window_width = window_width_spec
+        else:
+            window_width = 650
+
+        if window_height_spec != 300:
+            window_height = window_height_spec
+        else:
+            window_height = 300
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
 
@@ -41,7 +48,7 @@ class reply(customtkinter.CTkToplevel):
         lbl = customtkinter.CTkLabel(self, text=self.labeltext)
         lbl.config()
         # Create an Exit button.
-        b1 = customtkinter.CTkButton(self, text="Exit", command=self.destroy)
+        b1 = customtkinter.CTkButton(self, text="Close", command=self.destroy)
 
         # Pack the objects
         lbl.pack()

@@ -8,6 +8,10 @@ Thank you for contacting SCA regarding your GCA equipment.
 
 Our records indicate {need} assigned to {student_name} {thatwerenot} replaced. 
 
+Has your eligibility changed? If so, please contact your FEL to complete the required forms to update your eligibility.
+
+Otherwise, the following devices need to be returned before a replacement can be sent.
+
 To assist with this, I have added an electronic return label for the following {device} to today's list:
 {asset}
 The {label} should arrive at your email {email} inbox this afternoon between 3:30 PM and 5:00 PM. In order to print the {label}, you will need to select the yellow "Get Shipping Label" button. From there, you will be taken to a webpage that will give you different options including the ability to print the {label}.
