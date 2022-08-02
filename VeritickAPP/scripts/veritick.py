@@ -706,7 +706,7 @@ def main_run(ticketID, switch_state,switch_state2):
         df1 = pd.DataFrame(columns=columns)
         list_c = []
         new_list_b = []
-        # print(Unreturned)
+        # print(Unreturned)#
         for (index, row,) in Unreturned.T.iteritems():  # iterates over the unreturned equipment
             list_b.append(row.FERPA_Contact)
             list_c.append(row.Dev_Cat + " " + row.Model_Number + " GCA-" + str(row.AssetID))
