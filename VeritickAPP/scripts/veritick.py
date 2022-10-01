@@ -64,7 +64,7 @@ def main_run(ticketID, switch_state,switch_state2):
         print("Opening Master Update excel file.")
         # Xlwings Settings
         localuser = getpass.getuser()
-        excel_file = r"C:\Users\{}\Southeastern Computer Associates, LLC\GCA Deployment - Documents\Database\Master Updater.xlsm".format(
+        excel_file = r"".format( #excel file location
             localuser
         )
         wb = xw.Book(excel_file)
@@ -422,7 +422,7 @@ def main_run(ticketID, switch_state,switch_state2):
                 rlm = s.getBtn3()
 
                 if rlm == "1":
-                    Label_Method_Decision = "Print Return Label at SCA"
+                    Label_Method_Decision = "Print Return Label at <Place>"
                 elif rlm == "2":
                     Label_Method_Decision = "Email Electronic Return Label"
                 elif rlm == "3":
@@ -713,7 +713,7 @@ def main_run(ticketID, switch_state,switch_state2):
         # print(Unreturned)#
         for (index, row,) in Unreturned.T.iteritems():  # iterates over the unreturned equipment
             list_b.append(row.FERPA_Contact)
-            list_c.append(row.Dev_Cat + " " + row.Model_Number + " GCA-" + str(row.AssetID))
+            list_c.append(row.Dev_Cat + " " + row.Model_Number + " SomeSchool-" + str(row.AssetID))
 
 
         # Checks if student is withdrawn
@@ -880,7 +880,7 @@ def main_run(ticketID, switch_state,switch_state2):
         umad = reply('UMAD', 'UMAD', uMADFormat, heightspec=100, window_height_spec=800,window_width_spec=1080)
         umad.wait()
         lmdlist = []
-        if Label_Method_Decision == "Print Return Label at SCA":
+        if Label_Method_Decision == "Print Return Label at <Place>":
             lmdlist = ['Choose "Shipping - Replacement PRL" as note to send.',"Also let Warehouse know!",f"@Shipping\n{Contact}\nPrint at warehouse, include in box"]
             print('Choose "Shipping - Replacement PRL" as note to send.')
             print("Also let Warehouse know!")
