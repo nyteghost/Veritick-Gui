@@ -169,7 +169,7 @@ class ticket_search:
                     rlm = rl_in_list
 
                 if rlm.strip() == "PNM":
-                    Label_Method_Decision = "Print Return Label at SCA"
+                    Label_Method_Decision = "Print Return Label at <Place>"
                 elif rlm.strip() == "ERL":
                     Label_Method_Decision = "Email Electronic Return Label"
                 elif rlm.strip() == "Email":
@@ -181,7 +181,7 @@ class ticket_search:
                 else:
                     rlm = entryBox("Please enter a valid return label method.")
                     if rlm.lower() == "pnm":
-                        Label_Method_Decision = "Print Return Label at SCA"
+                        Label_Method_Decision = "Print Return Label at <Place>"
                     elif rlm.lower() == "erl":
                         Label_Method_Decision = "Email Electronic Return Label"
                     elif rlm.lower() == "both":
@@ -285,7 +285,7 @@ def street_name_fix(StreetAddress):
 
 @logger.catch
 def autoStart(ticketID, debug=""): 
-    """ Used for Address-ReturnCheck script to find Tickets for GCA with Scheduled as identifier """
+    """ Used for Address-ReturnCheck script to find Tickets for SomeSchool with Scheduled as identifier """
     print()
     print("Searching by Ticket Number.")
     gt = tickets_api.TicketsAPI(url=cwURL, auth=AUTH)
@@ -302,14 +302,14 @@ def autoStart(ticketID, debug=""):
             contact_email = gt.contactEmailAddress
             if (
                 "@georgiacyber" in contact_email
-                and contact_email != "gcaequipment@georgiacyber.org"
+                and contact_email != "someschoolequipment@someschool.org"
             ):
                 print("Contact Email:", contact_email)
                 split_string = contact_email.split("@", 1)
                 STID = split_string[0]
                 print("Staff Username:", STID)
-            elif contact_email == "gcaequipment@georgiacyber.org":
-                raise Exception("Contact is GCAEquipment")
+            elif contact_email == "someschoolequipment@someschool.org":
+                raise Exception("Contact is someschoolEquipment")
         if debug == 1:
             logger.exception("No STID found in summary.")
     else:
@@ -326,13 +326,13 @@ def autoStart(ticketID, debug=""):
                 contact_email = gt.contactEmailAddress
                 if (
                     "@georgiacyber" in contact_email
-                    and contact_email != "gcaequipment@georgiacyber.org"
+                    and contact_email != "someschoolequipment@someschool.org"
                 ):
                     print("Ticket is for Staff.")
                     print("Contact Email:", contact_email)
-                    STID = contact_email.replace("@georgiacyber.org", "")
+                    STID = contact_email.replace("@someschool.org", "")
                     print("Staff Username:", STID)
-                elif contact_email == "gcaequipment@georgiacyber.org":
+                elif contact_email == "someschoolequipment@someschool.org":
                     exit()
         except Exception as e:
             print(e)
